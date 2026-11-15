@@ -24,8 +24,9 @@
         btnAppSettings: $('btn-app-settings'),
         btnBack: $('btn-back'),
         timerPresetName: $('timer-preset-name'),
-        statusLabel: $('status-label'),
         countdown: $('countdown'),
+        cdMinLine: $('cd-min-line'),
+        cdSecLine: $('cd-sec-line'),
         timerBarFill: $('timer-bar-fill'),
         timerBarTopFill: $('timer-bar-top-fill'),
         timerBarElapsed: $('timer-bar-elapsed'),
@@ -152,10 +153,15 @@
         var isWarning = isRunning && sec <= status.warningSec && sec > 0;
         var isFinalTen = isActive && sec <= 10 && sec > 0;
 
-        if (showBigSec) {
-            els.countdown.textContent = sec;
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        if (m > 0) {
+            els.cdMinLine.textContent = m + '분';
+            els.cdSecLine.textContent = String(s).padStart(2, '0');
+            els.countdown.classList.add('two-line');
         } else {
-            els.countdown.textContent = formatTime(status.remainingMs);
+            els.cdSecLine.textContent = sec > 0 ? sec : '0';
+            els.countdown.classList.remove('two-line');
         }
 
         var pct = (status.progress * 100) + '%';
@@ -180,14 +186,7 @@
         if (status.state === Timer.State.PAUSED) cls = 'paused';
         app.className = cls ? 'state-' + cls : '';
 
-        // 상태 라벨
-        var labels = {
-            idle: '준비',
-            running: '스파링',
-            paused: '일시정지',
-            resting: '대기'
-        };
-        els.statusLabel.textContent = labels[status.state] || '';
+        // 상태 라벨 (제거됨, 색상으로 구분)
 
         // 버튼
         var btnLabels = { idle: '시작', paused: '계속' };
