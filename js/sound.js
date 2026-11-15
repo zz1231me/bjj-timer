@@ -23,85 +23,101 @@ var Sound = (function () {
         volumeLevel = Math.max(0, Math.min(1, v / 100));
     }
 
-    // ── Type 1: 클래식 벨 ──
-    function bellClassic() {
+    // ── Type 1: 체육관 벨 ──
+    function bellGym() {
         var c = getCtx();
         var now = c.currentTime;
         var master = c.createGain();
         master.connect(c.destination);
-        master.gain.setValueAtTime(volumeLevel * 0.5, now);
-        master.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+        master.gain.setValueAtTime(volumeLevel * 0.6, now);
+        master.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
 
-        [800, 1200, 1600, 2400].forEach(function (freq, i) {
+        [830, 1245, 1660, 2490].forEach(function (freq, i) {
             var osc = c.createOscillator();
             osc.type = 'sine';
             osc.frequency.value = freq;
             var g = c.createGain();
-            g.gain.value = 0.6 / (i + 1);
+            g.gain.value = 0.5 / (i + 1);
             osc.connect(g);
             g.connect(master);
             osc.start(now);
-            osc.stop(now + 1.8);
+            osc.stop(now + 2.0);
         });
     }
 
-    // ── Type 2: 전자 비프 ──
-    function bellBeep() {
+    // ── Type 2: 부저 (삑!) ──
+    function bellBuzzer() {
         var c = getCtx();
         var now = c.currentTime;
-        [0, 0.18].forEach(function (d) {
-            var osc = c.createOscillator();
-            osc.type = 'square';
-            osc.frequency.value = 1400;
-            var g = c.createGain();
-            g.gain.setValueAtTime(0, now + d);
-            g.gain.linearRampToValueAtTime(volumeLevel * 0.25, now + d + 0.01);
-            g.gain.setValueAtTime(volumeLevel * 0.25, now + d + 0.1);
-            g.gain.linearRampToValueAtTime(0, now + d + 0.12);
-            osc.connect(g);
-            g.connect(c.destination);
-            osc.start(now + d);
-            osc.stop(now + d + 0.15);
-        });
-    }
-
-    // ── Type 3: 에어혼 ──
-    function bellHorn() {
-        var c = getCtx();
-        var now = c.currentTime;
-        var master = c.createGain();
-        master.connect(c.destination);
-        master.gain.setValueAtTime(0, now);
-        master.gain.linearRampToValueAtTime(volumeLevel * 0.35, now + 0.05);
-        master.gain.setValueAtTime(volumeLevel * 0.35, now + 0.9);
-        master.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
-
-        var osc1 = c.createOscillator();
-        osc1.type = 'sawtooth';
-        osc1.frequency.value = 180;
-        osc1.connect(master);
-        osc1.start(now);
-        osc1.stop(now + 1.4);
+        var osc = c.createOscillator();
+        osc.type = 'square';
+        osc.frequency.value = 680;
+        var g = c.createGain();
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(volumeLevel * 0.45, now + 0.015);
+        g.gain.setValueAtTime(volumeLevel * 0.45, now + 0.65);
+        g.gain.linearRampToValueAtTime(0, now + 0.72);
+        osc.connect(g);
+        g.connect(c.destination);
+        osc.start(now);
+        osc.stop(now + 0.75);
 
         var osc2 = c.createOscillator();
-        osc2.type = 'sawtooth';
-        osc2.frequency.value = 184;
-        osc2.connect(master);
+        osc2.type = 'square';
+        osc2.frequency.value = 685;
+        var g2 = c.createGain();
+        g2.gain.setValueAtTime(0, now);
+        g2.gain.linearRampToValueAtTime(volumeLevel * 0.15, now + 0.015);
+        g2.gain.setValueAtTime(volumeLevel * 0.15, now + 0.65);
+        g2.gain.linearRampToValueAtTime(0, now + 0.72);
+        osc2.connect(g2);
+        g2.connect(c.destination);
         osc2.start(now);
-        osc2.stop(now + 1.4);
-
-        var osc3 = c.createOscillator();
-        osc3.type = 'sine';
-        osc3.frequency.value = 360;
-        var g3 = c.createGain();
-        g3.gain.value = 0.3;
-        osc3.connect(g3);
-        g3.connect(master);
-        osc3.start(now);
-        osc3.stop(now + 1.4);
+        osc2.stop(now + 0.75);
     }
 
-    var bellFns = [null, bellClassic, bellBeep, bellHorn];
+    // ── Type 3: 호루라기 ──
+    function bellWhistle() {
+        var c = getCtx();
+        var now = c.currentTime;
+        var osc = c.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = 2800;
+
+        var vibrato = c.createOscillator();
+        vibrato.frequency.value = 6;
+        var vGain = c.createGain();
+        vGain.gain.value = 60;
+        vibrato.connect(vGain);
+        vGain.connect(osc.frequency);
+
+        var g = c.createGain();
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(volumeLevel * 0.3, now + 0.04);
+        g.gain.setValueAtTime(volumeLevel * 0.3, now + 0.7);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+        osc.connect(g);
+        g.connect(c.destination);
+        osc.start(now);
+        osc.stop(now + 0.95);
+        vibrato.start(now);
+        vibrato.stop(now + 0.95);
+
+        var noise = c.createOscillator();
+        noise.type = 'sawtooth';
+        noise.frequency.value = 5600;
+        var nGain = c.createGain();
+        nGain.gain.setValueAtTime(0, now);
+        nGain.gain.linearRampToValueAtTime(volumeLevel * 0.06, now + 0.04);
+        nGain.gain.setValueAtTime(volumeLevel * 0.06, now + 0.7);
+        nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+        noise.connect(nGain);
+        nGain.connect(c.destination);
+        noise.start(now);
+        noise.stop(now + 0.95);
+    }
+
+    var bellFns = [null, bellGym, bellBuzzer, bellWhistle];
 
     function playBell(type) {
         var fn = bellFns[type || 1];
@@ -114,7 +130,7 @@ var Sound = (function () {
 
     function playRoundEnd(type) {
         playBell(type);
-        setTimeout(function () { playBell(type); }, 350);
+        setTimeout(function () { playBell(type); }, 400);
     }
 
     function playCountTick() {
@@ -122,14 +138,14 @@ var Sound = (function () {
         var now = c.currentTime;
         var osc = c.createOscillator();
         osc.type = 'sine';
-        osc.frequency.value = 880;
+        osc.frequency.value = 1800;
         var g = c.createGain();
-        g.gain.setValueAtTime(volumeLevel * 0.18, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        g.gain.setValueAtTime(volumeLevel * 0.1, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
         osc.connect(g);
         g.connect(c.destination);
         osc.start(now);
-        osc.stop(now + 0.1);
+        osc.stop(now + 0.04);
     }
 
     return {

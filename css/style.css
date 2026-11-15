@@ -188,7 +188,7 @@ html, body {
 }
 
 #status-label {
-    font-size: 2rem;
+    font-size: 3.5rem;
     font-weight: 800;
     letter-spacing: 0.35em;
     color: var(--yellow);
@@ -282,6 +282,14 @@ html, body {
     0%, 100% { background: #140808; }
     50% { background: #1e0606; }
 }
+
+.state-bigsec #screen-timer { background: var(--bg); }
+.state-bigsec #status-label { color: var(--yellow); }
+.state-bigsec #countdown {
+    color: var(--yellow);
+    font-size: min(64vw, 360px);
+}
+.state-bigsec #timer-bar-fill { background: var(--yellow); }
 
 .state-paused #countdown {
     animation: blink 1.2s ease-in-out infinite;

@@ -5,6 +5,7 @@
     var presets = Settings.loadPresets();
     var appSettings = Settings.loadAppSettings();
     var editingPresetId = null;
+    var lastTickSec = -1;
 
     var screens = {
         dashboard: $('screen-dashboard'),
@@ -126,11 +127,9 @@
     }
 
     // ── Timer ──
-    var currentPreset = null;
-
     function startTimer(preset) {
-        currentPreset = preset;
         els.timerPresetName.textContent = preset.name;
+        lastTickSec = -1;
         Timer.configure(preset);
         showScreen('timer');
         Bridge.keepScreenOn(true);
@@ -144,10 +143,14 @@
     }
 
     function updateTimerDisplay(status) {
-        var isCountdown = status.isWarning && status.countdownSec > 0 && status.countdownSec <= 10;
+        var sec = Math.ceil(status.remainingMs / 1000);
+        var isRunning = status.state === Timer.State.RUNNING;
+        var showBigSec = isRunning && sec <= 60 && sec > 0;
+        var isWarning = isRunning && sec <= status.warningSec && sec > 0;
+        var isFinalTen = isRunning && sec <= 10 && sec > 0;
 
-        if (isCountdown) {
-            els.countdown.textContent = status.countdownSec;
+        if (showBigSec) {
+            els.countdown.textContent = sec;
         } else {
             els.countdown.textContent = formatTime(status.remainingMs);
         }
@@ -157,19 +160,30 @@
         els.timerBarElapsed.textContent = formatTime(elapsed);
         els.timerBarTotal.textContent = formatTime(status.totalMs);
 
+        // 10초전 또닥 소리
+        if (isFinalTen && sec !== lastTickSec) {
+            lastTickSec = sec;
+            if (appSettings.soundOn) Sound.playCountTick();
+            if (appSettings.vibrateOn) Bridge.vibrate(30);
+        }
+
+        // 상태 클래스
         var cls = status.state;
-        if (status.isWarning) cls = 'warning';
+        if (isWarning) cls = 'warning';
+        if (showBigSec && !isWarning) cls = 'bigsec';
         if (status.state === Timer.State.PAUSED) cls = 'paused';
         app.className = cls ? 'state-' + cls : '';
 
+        // 상태 라벨
         var labels = {
             idle: '준비',
             running: '스파링',
             paused: '일시정지',
             resting: '휴식'
         };
-        els.statusLabel.textContent = status.isWarning ? '스파링' : (labels[status.state] || '');
+        els.statusLabel.textContent = labels[status.state] || '';
 
+        // 버튼
         var btnLabels = { idle: '시작', paused: '계속' };
         els.btnStart.textContent = btnLabels[status.state] || '정지';
     }
@@ -177,19 +191,14 @@
     Timer.on('update', updateTimerDisplay);
 
     Timer.on('roundStart', function () {
+        lastTickSec = -1;
         if (appSettings.soundOn) Sound.playRoundStart(appSettings.bellType);
         if (appSettings.vibrateOn) Bridge.vibrate(300);
     });
     Timer.on('restStart', function () {
+        lastTickSec = -1;
         if (appSettings.soundOn) Sound.playRoundEnd(appSettings.bellType);
         if (appSettings.vibrateOn) Bridge.vibrate([200, 100, 200]);
-    });
-    Timer.on('warningStart', function () {
-        if (appSettings.vibrateOn) Bridge.vibrate(100);
-    });
-    Timer.on('countTick', function (sec) {
-        if (appSettings.soundOn) Sound.playCountTick();
-        if (appSettings.vibrateOn) Bridge.vibrate(50);
     });
 
     els.btnStart.addEventListener('click', function () {
@@ -199,10 +208,14 @@
         else Timer.start();
     });
 
-    els.btnReset.addEventListener('click', function () { Timer.reset(); });
+    els.btnReset.addEventListener('click', function () {
+        Timer.reset();
+        lastTickSec = -1;
+    });
 
     els.btnBack.addEventListener('click', function () {
         Timer.reset();
+        lastTickSec = -1;
         Bridge.keepScreenOn(false);
         app.className = '';
         showScreen('dashboard');
@@ -244,7 +257,7 @@
             roundSec: clamp(parseInt(els.peRoundSec.value) || 0, 0, 59),
             restMin: clamp(parseInt(els.peRestMin.value) || 0, 0, 99),
             restSec: clamp(parseInt(els.peRestSec.value) || 0, 0, 59),
-            warningSec: clamp(parseInt(els.peWarning.value) || 0, 0, 30)
+            warningSec: clamp(parseInt(els.peWarning.value) || 0, 0, 60)
         };
         if (editingPresetId) {
             var idx = presets.findIndex(function (x) { return x.id === editingPresetId; });
