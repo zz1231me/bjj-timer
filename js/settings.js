@@ -76,7 +76,7 @@ var Settings = (function () {
         if (p.roundSec > 0) round += p.roundSec + '초';
         var rest = p.restMin + '분';
         if (p.restSec > 0) rest += p.restSec + '초';
-        return '스파링 ' + round + '  ·  휴식 ' + rest;
+        return '스파링 ' + round + '  ·  대기 ' + rest;
     }
 
     return {

@@ -69,10 +69,10 @@ var Sound = (function () {
     // 시작: 짧은 띵!  종료: 길게 띵~~~~~
     // ═══════════════════════════════════
     function bell1Start() {
-        makeDing(0.6);
+        makeDing(1.0);
     }
     function bell1End() {
-        makeDing(2.5);
+        makeDing(2.0);
     }
 
     // ═══════════════════════════════════
@@ -80,10 +80,10 @@ var Sound = (function () {
     // 시작: 짧은 삐!  종료: 길게 삐────!
     // ═══════════════════════════════════
     function bell2Start() {
-        makeBeep(880, 0.3);
+        makeBeep(880, 1.0);
     }
     function bell2End() {
-        makeBeep(880, 1.5);
+        makeBeep(880, 2.0);
     }
 
     // ═══════════════════════════════════
@@ -91,14 +91,14 @@ var Sound = (function () {
     // 시작: 삑!  종료: 삑삑삑!
     // ═══════════════════════════════════
     function bell3Start() {
-        makeBeep(1200, 0.15);
+        makeBeep(1200, 0.2);
     }
     function bell3End() {
         var c = getCtx();
         var now = c.currentTime;
-        makeBeep(1200, 0.15, now);
-        makeBeep(1200, 0.15, now + 0.25);
-        makeBeep(1200, 0.15, now + 0.5);
+        makeBeep(1200, 0.2, now);
+        makeBeep(1200, 0.2, now + 0.3);
+        makeBeep(1200, 0.2, now + 0.6);
     }
 
     var startFns = [null, bell1Start, bell2Start, bell3Start];

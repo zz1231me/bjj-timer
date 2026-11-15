@@ -27,6 +27,7 @@
         statusLabel: $('status-label'),
         countdown: $('countdown'),
         timerBarFill: $('timer-bar-fill'),
+        timerBarTopFill: $('timer-bar-top-fill'),
         timerBarElapsed: $('timer-bar-elapsed'),
         timerBarTotal: $('timer-bar-total'),
         btnReset: $('btn-reset'),
@@ -145,9 +146,11 @@
     function updateTimerDisplay(status) {
         var sec = Math.ceil(status.remainingMs / 1000);
         var isRunning = status.state === Timer.State.RUNNING;
-        var showBigSec = isRunning && sec <= 60 && sec > 0;
+        var isResting = status.state === Timer.State.RESTING;
+        var isActive = isRunning || isResting;
+        var showBigSec = isActive && sec <= 60 && sec > 0;
         var isWarning = isRunning && sec <= status.warningSec && sec > 0;
-        var isFinalTen = isRunning && sec <= 10 && sec > 0;
+        var isFinalTen = isActive && sec <= 10 && sec > 0;
 
         if (showBigSec) {
             els.countdown.textContent = sec;
@@ -155,12 +158,14 @@
             els.countdown.textContent = formatTime(status.remainingMs);
         }
 
-        els.timerBarFill.style.width = (status.progress * 100) + '%';
+        var pct = (status.progress * 100) + '%';
+        els.timerBarFill.style.width = pct;
+        if (els.timerBarTopFill) els.timerBarTopFill.style.width = pct;
         var elapsed = status.totalMs - status.remainingMs;
         els.timerBarElapsed.textContent = formatTime(elapsed);
         els.timerBarTotal.textContent = formatTime(status.totalMs);
 
-        // 10초전 또닥 소리
+        // 10초전 째깍 소리
         if (isFinalTen && sec !== lastTickSec) {
             lastTickSec = sec;
             if (appSettings.soundOn) Sound.playCountTick();
@@ -170,7 +175,8 @@
         // 상태 클래스
         var cls = status.state;
         if (isWarning) cls = 'warning';
-        if (showBigSec && !isWarning) cls = 'bigsec';
+        else if (isResting && showBigSec) cls = 'resting-bigsec';
+        else if (showBigSec) cls = 'bigsec';
         if (status.state === Timer.State.PAUSED) cls = 'paused';
         app.className = cls ? 'state-' + cls : '';
 
@@ -179,7 +185,7 @@
             idle: '준비',
             running: '스파링',
             paused: '일시정지',
-            resting: '휴식'
+            resting: '대기'
         };
         els.statusLabel.textContent = labels[status.state] || '';
 

@@ -214,27 +214,36 @@ html, body {
     margin: 8px 0;
 }
 
-/* ── Timer Bar ── */
-#timer-bar-wrap { padding: 0 24px 12px; }
+/* ── Timer Bars (top + bottom) ── */
+#timer-bar-top {
+    width: 100%; height: 10px;
+    background: var(--t4);
+    overflow: hidden;
+}
+#timer-bar-top-fill {
+    height: 100%; width: 100%;
+    background: var(--yellow);
+    transition: width 0.3s linear, background 0.5s;
+}
+
+#timer-bar-wrap { padding: 0 0 8px; }
 
 #timer-bar {
-    width: 100%; height: 6px;
+    width: 100%; height: 10px;
     background: var(--t4);
-    border-radius: 3px;
     overflow: hidden;
     position: relative;
 }
 
 #timer-bar-fill {
     height: 100%; width: 100%;
-    border-radius: 3px;
     background: var(--yellow);
     transition: width 0.3s linear, background 0.5s;
 }
 
 #timer-bar-labels {
     display: flex; justify-content: space-between;
-    margin-top: 8px;
+    margin-top: 8px; padding: 0 24px;
     font-size: 0.75rem; font-weight: 700;
     color: var(--t2); font-variant-numeric: tabular-nums;
 }
@@ -266,35 +275,48 @@ html, body {
 .btn-ctrl-primary:active { opacity: 0.85; }
 
 /* ── Timer States ── */
+/* running: yellow */
 .state-running #screen-timer { background: var(--bg); }
 .state-running #status-label { color: var(--yellow); }
 .state-running #countdown { color: var(--yellow); }
-.state-running #timer-bar-fill { background: var(--yellow); }
+.state-running #timer-bar-fill,
+.state-running #timer-bar-top-fill { background: var(--yellow); }
 
+/* running bigsec (<=60s): yellow, bigger */
 .state-bigsec #screen-timer { background: var(--bg); }
 .state-bigsec #status-label { color: var(--yellow); }
-.state-bigsec #countdown {
-    color: var(--yellow);
-    font-size: min(60vw, 340px);
-}
-.state-bigsec #timer-bar-fill { background: var(--yellow); }
+.state-bigsec #countdown { color: var(--yellow); font-size: min(60vw, 340px); }
+.state-bigsec #timer-bar-fill,
+.state-bigsec #timer-bar-top-fill { background: var(--yellow); }
 
+/* resting: blue */
 .state-resting #screen-timer { background: var(--blue-bg); }
 .state-resting #status-label { color: var(--blue); }
 .state-resting #countdown { color: var(--blue); }
-.state-resting #timer-bar-fill { background: var(--blue); }
+.state-resting #timer-bar-fill,
+.state-resting #timer-bar-top-fill { background: var(--blue); }
 .state-resting .btn-ctrl-primary { background: var(--blue); }
-.state-resting #timer-bar { background: var(--blue-dim); }
+.state-resting #timer-bar,
+.state-resting #timer-bar-top { background: var(--blue-dim); }
 
+/* resting bigsec (<=60s): blue, bigger */
+.state-resting-bigsec #screen-timer { background: var(--blue-bg); }
+.state-resting-bigsec #status-label { color: var(--blue); }
+.state-resting-bigsec #countdown { color: var(--blue); font-size: min(60vw, 340px); }
+.state-resting-bigsec #timer-bar-fill,
+.state-resting-bigsec #timer-bar-top-fill { background: var(--blue); }
+.state-resting-bigsec .btn-ctrl-primary { background: var(--blue); }
+.state-resting-bigsec #timer-bar,
+.state-resting-bigsec #timer-bar-top { background: var(--blue-dim); }
+
+/* warning (sparring <=warningSec): orange + pulse */
 .state-warning #screen-timer {
     animation: pulse-warn 1s ease-in-out infinite;
 }
 .state-warning #status-label { color: var(--orange); }
-.state-warning #countdown {
-    color: var(--orange);
-    font-size: min(72vw, 400px);
-}
-.state-warning #timer-bar-fill { background: var(--orange); }
+.state-warning #countdown { color: var(--orange); font-size: min(72vw, 400px); }
+.state-warning #timer-bar-fill,
+.state-warning #timer-bar-top-fill { background: var(--orange); }
 .state-warning .btn-ctrl-primary { background: var(--orange); }
 
 @keyframes pulse-warn {
