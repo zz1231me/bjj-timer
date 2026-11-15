@@ -14,7 +14,7 @@ var Timer = (function () {
     var endTime = 0;
     var rafId = null;
     var warningFired = false;
-    var settings = null;
+    var preset = null;
     var callbacks = {};
 
     function on(event, fn) {
@@ -25,9 +25,9 @@ var Timer = (function () {
         if (callbacks[event]) callbacks[event](data);
     }
 
-    function configure(s) {
-        settings = s;
-        remainingMs = Settings.getRoundMs(s);
+    function configure(p) {
+        preset = p;
+        remainingMs = Settings.getRoundMs(p);
         totalMs = remainingMs;
         currentRound = 0;
         state = State.IDLE;
@@ -40,17 +40,14 @@ var Timer = (function () {
 
         if (state === State.IDLE) {
             currentRound = 1;
-            remainingMs = Settings.getRoundMs(settings);
+            remainingMs = Settings.getRoundMs(preset);
             totalMs = remainingMs;
             state = State.RUNNING;
             warningFired = false;
             emit('roundStart', { round: currentRound });
         } else if (state === State.PAUSED) {
             if (remainingMs <= 0) return;
-            state = remainingMs === totalMs && currentRound > 0 ? State.RUNNING : state;
-            if (state === State.PAUSED) {
-                state = totalMs === Settings.getRestMs(settings) ? State.RESTING : State.RUNNING;
-            }
+            state = totalMs === Settings.getRestMs(preset) ? State.RESTING : State.RUNNING;
         }
 
         endTime = Date.now() + remainingMs;
@@ -71,7 +68,7 @@ var Timer = (function () {
         rafId = null;
         state = State.IDLE;
         currentRound = 0;
-        remainingMs = Settings.getRoundMs(settings);
+        remainingMs = Settings.getRoundMs(preset);
         totalMs = remainingMs;
         warningFired = false;
         emit('update', getStatus());
@@ -79,11 +76,10 @@ var Timer = (function () {
 
     function tick() {
         rafId = requestAnimationFrame(function () {
-            var now = Date.now();
-            remainingMs = Math.max(0, endTime - now);
+            remainingMs = Math.max(0, endTime - Date.now());
 
             if (!warningFired && state === State.RUNNING) {
-                var warningMs = Settings.getWarningMs(settings);
+                var warningMs = Settings.getWarningMs(preset);
                 if (warningMs > 0 && remainingMs <= warningMs && remainingMs > 0) {
                     warningFired = true;
                     emit('warning', { remaining: remainingMs });
@@ -102,14 +98,14 @@ var Timer = (function () {
 
     function onPeriodEnd() {
         if (state === State.RUNNING) {
-            if (currentRound >= settings.rounds) {
+            if (currentRound >= preset.rounds) {
                 state = State.FINISHED;
                 emit('finish', { round: currentRound });
                 emit('update', getStatus());
                 return;
             }
             state = State.RESTING;
-            remainingMs = Settings.getRestMs(settings);
+            remainingMs = Settings.getRestMs(preset);
             totalMs = remainingMs;
             warningFired = false;
             endTime = Date.now() + remainingMs;
@@ -119,7 +115,7 @@ var Timer = (function () {
         } else if (state === State.RESTING) {
             currentRound++;
             state = State.RUNNING;
-            remainingMs = Settings.getRoundMs(settings);
+            remainingMs = Settings.getRoundMs(preset);
             totalMs = remainingMs;
             warningFired = false;
             endTime = Date.now() + remainingMs;
@@ -133,7 +129,7 @@ var Timer = (function () {
         return {
             state: state,
             currentRound: currentRound,
-            totalRounds: settings ? settings.rounds : 0,
+            totalRounds: preset ? preset.rounds : 0,
             remainingMs: remainingMs,
             totalMs: totalMs,
             progress: totalMs > 0 ? remainingMs / totalMs : 1,

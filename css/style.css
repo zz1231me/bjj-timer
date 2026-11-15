@@ -7,16 +7,17 @@
 }
 
 :root {
-    --bg: #0a0a1a;
-    --surface: #141428;
+    --bg: #0a0a0a;
+    --surface: #1a1a1a;
+    --card: #1e1e1e;
+    --primary: #FFD700;
+    --primary-dim: #b8a000;
     --text: #ffffff;
-    --text-dim: #8888aa;
-    --accent: #00d4ff;
-    --danger: #ff4757;
-    --warning: #ffaa00;
-    --success: #2ed573;
-    --border: #2a2a4a;
-    --btn-bg: #1e1e3a;
+    --text-dim: #999999;
+    --danger: #ff4444;
+    --warning: #ff8800;
+    --success: #44ff44;
+    --border: #333333;
 }
 
 html, body {
@@ -33,87 +34,272 @@ html, body {
 #app {
     height: 100%;
     position: relative;
+    overflow: hidden;
+}
+
+/* ── Screens ── */
+
+.screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* ── Dashboard ── */
+
+#screen-dashboard {
+    padding: 16px;
+}
+
+.dash-header {
+    text-align: center;
+    padding: 20px 0 8px;
+}
+
+#dash-date {
+    font-size: 1rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+}
+
+#dash-time {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+    line-height: 1.1;
+}
+
+#schedule-badge {
+    text-align: center;
+    margin: 4px 0 8px;
+    font-size: 0.85rem;
+    color: var(--primary-dim);
+    padding: 6px 12px;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 20px;
+    display: inline-block;
+    align-self: center;
+}
+
+#schedule-badge.hidden {
+    display: none;
+}
+
+.dash-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    padding: 16px 0 8px;
+    letter-spacing: 0.05em;
+}
+
+/* ── Preset Cards ── */
+
+#preset-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 80px;
+}
+
+.preset-card {
+    display: flex;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.preset-card:active {
+    border-color: var(--primary);
+}
+
+.preset-info {
+    flex: 1;
+}
+
+.preset-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.preset-detail {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+}
+
+.preset-play {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--primary);
+    background: rgba(255, 215, 0, 0.1);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.preset-edit {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+/* ── Dashboard Footer ── */
+
+.dash-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    background: linear-gradient(transparent, var(--bg) 30%);
+    padding-top: 30px;
+}
+
+.footer-btn {
+    flex: 1;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    background: var(--card);
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+}
+
+.footer-btn:active {
+    background: rgba(255, 215, 0, 0.15);
+}
+
+.footer-btn.icon-btn {
+    flex: 0 0 56px;
+    font-size: 1.4rem;
 }
 
 /* ── Timer Screen ── */
 
-#timer-screen {
-    display: flex;
-    flex-direction: column;
+#screen-timer {
     align-items: center;
     justify-content: center;
-    height: 100%;
     padding: 16px;
-    gap: 8px;
+    gap: 4px;
+}
+
+.back-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 8px;
+}
+
+#timer-preset-name {
+    font-size: 0.95rem;
+    color: var(--primary-dim);
+    letter-spacing: 0.1em;
 }
 
 #round-info {
     font-size: 1.2rem;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.2em;
     color: var(--text-dim);
     font-weight: 600;
 }
 
 #status-label {
-    font-size: 1.6rem;
-    font-weight: 700;
+    font-size: 2rem;
+    font-weight: 800;
     letter-spacing: 0.15em;
+    color: var(--primary);
     transition: color 0.3s;
+    margin-top: 4px;
 }
 
 #countdown {
-    font-size: min(28vw, 180px);
-    font-weight: 800;
+    font-size: min(30vw, 200px);
+    font-weight: 900;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.05em;
     line-height: 1;
+    color: var(--primary);
     transition: color 0.3s;
-    padding: 16px 0;
+    padding: 12px 0;
 }
 
 #progress-bar {
-    width: 80%;
+    width: 85%;
     max-width: 400px;
-    height: 6px;
+    height: 8px;
     background: var(--border);
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
-    margin: 8px 0 24px;
+    margin: 8px 0 28px;
 }
 
 #progress-fill {
     height: 100%;
     width: 100%;
-    border-radius: 3px;
-    background: var(--accent);
+    border-radius: 4px;
+    background: var(--primary);
     transition: width 0.2s linear, background 0.3s;
-    transform-origin: left;
 }
 
-/* ── Controls ── */
-
-#controls {
+#timer-controls {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     align-items: center;
-    width: 100%;
-    max-width: 400px;
-    justify-content: center;
-    padding: 0 16px;
 }
 
 .ctrl-btn {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 700;
-    padding: 14px 28px;
+    padding: 16px 32px;
     border: 2px solid var(--border);
-    border-radius: 12px;
-    background: var(--btn-bg);
+    border-radius: 14px;
+    background: var(--card);
     color: var(--text);
     cursor: pointer;
     transition: all 0.15s;
     letter-spacing: 0.1em;
-    min-width: 90px;
+    min-width: 100px;
     text-align: center;
 }
 
@@ -123,61 +309,35 @@ html, body {
 }
 
 .ctrl-btn.primary {
-    background: var(--accent);
+    background: var(--primary);
     color: var(--bg);
-    border-color: var(--accent);
-    padding: 18px 40px;
-    font-size: 1.3rem;
-    min-width: 130px;
+    border-color: var(--primary);
+    padding: 20px 48px;
+    font-size: 1.4rem;
+    min-width: 140px;
 }
 
 .ctrl-btn.primary:active {
-    background: #00b8e0;
+    background: var(--primary-dim);
 }
 
-.icon-btn {
-    font-size: 1.4rem;
-    min-width: 56px;
-    padding: 14px;
-}
-
-/* ── State Colors ── */
+/* Timer States */
 
 .state-running #status-label,
-.state-running #countdown {
-    color: var(--accent);
-}
-
-.state-running #progress-fill {
-    background: var(--accent);
-}
+.state-running #countdown { color: var(--primary); }
+.state-running #progress-fill { background: var(--primary); }
 
 .state-warning #status-label,
-.state-warning #countdown {
-    color: var(--warning);
-}
-
-.state-warning #progress-fill {
-    background: var(--warning);
-}
+.state-warning #countdown { color: var(--warning); }
+.state-warning #progress-fill { background: var(--warning); }
 
 .state-resting #status-label,
-.state-resting #countdown {
-    color: var(--danger);
-}
-
-.state-resting #progress-fill {
-    background: var(--danger);
-}
+.state-resting #countdown { color: var(--danger); }
+.state-resting #progress-fill { background: var(--danger); }
 
 .state-finished #status-label,
-.state-finished #countdown {
-    color: var(--success);
-}
-
-.state-finished #progress-fill {
-    background: var(--success);
-}
+.state-finished #countdown { color: var(--success); }
+.state-finished #progress-fill { background: var(--success); }
 
 .state-paused #countdown {
     animation: blink 1s step-end infinite;
@@ -187,24 +347,9 @@ html, body {
     50% { opacity: 0.3; }
 }
 
-/* ── Settings Screen ── */
+/* ── Modal Screens (Preset Edit, Settings) ── */
 
-#settings-screen {
-    position: absolute;
-    inset: 0;
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    z-index: 10;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-#settings-screen.hidden {
-    display: none;
-}
-
-.settings-header {
+.modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -212,8 +357,8 @@ html, body {
     border-bottom: 1px solid var(--border);
 }
 
-.settings-header h2 {
-    font-size: 1.4rem;
+.modal-header h2 {
+    font-size: 1.3rem;
     font-weight: 700;
 }
 
@@ -227,35 +372,80 @@ html, body {
     line-height: 1;
 }
 
-.settings-body {
+.modal-body {
     flex: 1;
-    padding: 8px 20px;
+    padding: 12px 20px;
+    overflow-y: auto;
 }
 
-.setting-item {
+.section-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.1em;
+    padding: 12px 0 4px;
+    text-transform: uppercase;
+}
+
+.divider {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 0;
+}
+
+.field {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px 0;
+    padding: 14px 0;
     border-bottom: 1px solid var(--border);
     gap: 12px;
 }
 
-.setting-item > label:first-child {
-    font-size: 1.05rem;
+.field > label:first-child {
+    font-size: 1rem;
     font-weight: 500;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
+.toggle-field {
+    padding: 16px 0;
+}
+
+.field input[type="text"] {
+    flex: 1;
+    max-width: 180px;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 1rem;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    text-align: right;
+}
+
+.field input[type="time"] {
+    height: 44px;
+    padding: 0 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    color: var(--primary);
+    color-scheme: dark;
+}
+
 .time-input {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
 }
 
 .time-input input {
-    width: 56px;
+    width: 50px;
     height: 44px;
     text-align: center;
     font-size: 1.2rem;
@@ -273,8 +463,7 @@ html, body {
 }
 
 .colon {
-    font-size: 1.4rem;
-    font-weight: 700;
+    font-size: 0.9rem;
     color: var(--text-dim);
 }
 
@@ -285,7 +474,7 @@ html, body {
 }
 
 .number-input input {
-    width: 56px;
+    width: 50px;
     height: 44px;
     text-align: center;
     font-size: 1.2rem;
@@ -321,6 +510,43 @@ html, body {
     background: var(--border);
 }
 
+/* Volume Slider */
+
+.volume-slider {
+    flex: 1;
+    max-width: 180px;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--border);
+    border-radius: 3px;
+    outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+}
+
+.test-btn {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: var(--surface);
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.test-btn:active {
+    background: rgba(255, 215, 0, 0.15);
+}
+
 /* Toggle Switch */
 
 .switch {
@@ -328,6 +554,7 @@ html, body {
     width: 52px;
     height: 30px;
     display: inline-block;
+    flex-shrink: 0;
 }
 
 .switch input {
@@ -358,21 +585,28 @@ html, body {
 }
 
 .switch input:checked + .slider {
-    background: var(--accent);
+    background: var(--primary);
 }
 
 .switch input:checked + .slider::before {
     transform: translateX(22px);
 }
 
-/* Save Button */
+/* Modal Footer */
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+}
 
 .save-btn {
-    margin: 16px;
+    flex: 1;
+    margin: 12px 16px;
     padding: 16px;
     font-size: 1.1rem;
     font-weight: 700;
-    background: var(--accent);
+    background: var(--primary);
     color: var(--bg);
     border: none;
     border-radius: 12px;
@@ -384,17 +618,41 @@ html, body {
     opacity: 0.8;
 }
 
-/* ── Safe Area (notch devices) ── */
+.delete-btn {
+    padding: 16px 24px;
+    font-size: 1rem;
+    font-weight: 700;
+    background: none;
+    color: var(--danger);
+    border: 2px solid var(--danger);
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.delete-btn.hidden {
+    display: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ── Safe Area ── */
 
 @supports (padding-top: env(safe-area-inset-top)) {
-    #timer-screen {
+    #screen-dashboard {
         padding-top: calc(16px + env(safe-area-inset-top));
-        padding-bottom: calc(16px + env(safe-area-inset-bottom));
     }
-    .settings-header {
+    .dash-footer {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+    .back-btn {
+        top: calc(16px + env(safe-area-inset-top));
+    }
+    .modal-header {
         padding-top: calc(20px + env(safe-area-inset-top));
     }
     .save-btn {
-        margin-bottom: calc(16px + env(safe-area-inset-bottom));
+        margin-bottom: calc(12px + env(safe-area-inset-bottom));
     }
 }
