@@ -36,7 +36,6 @@
         peRoundSec: $('pe-round-sec'),
         peRestMin: $('pe-rest-min'),
         peRestSec: $('pe-rest-sec'),
-        peRounds: $('pe-rounds'),
         peWarning: $('pe-warning'),
         btnDeletePreset: $('btn-delete-preset'),
         btnSavePreset: $('btn-save-preset'),
@@ -51,9 +50,7 @@
     };
 
     function showScreen(name) {
-        Object.keys(screens).forEach(function (k) {
-            screens[k].classList.remove('active');
-        });
+        Object.keys(screens).forEach(function (k) { screens[k].classList.remove('active'); });
         screens[name].classList.add('active');
     }
 
@@ -63,19 +60,17 @@
         var days = ['일', '월', '화', '수', '목', '금', '토'];
         els.dashDate.textContent =
             now.getFullYear() + '.' +
-            (now.getMonth() + 1 < 10 ? '0' : '') + (now.getMonth() + 1) + '.' +
-            (now.getDate() < 10 ? '0' : '') + now.getDate() +
+            String(now.getMonth() + 1).padStart(2, '0') + '.' +
+            String(now.getDate()).padStart(2, '0') +
             ' ' + days[now.getDay()] + '요일';
-
-        var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
         els.dashTime.textContent =
-            (h < 10 ? '0' : '') + h + ':' +
-            (m < 10 ? '0' : '') + m + ':' +
-            (s < 10 ? '0' : '') + s;
+            String(now.getHours()).padStart(2, '0') + ':' +
+            String(now.getMinutes()).padStart(2, '0') + ':' +
+            String(now.getSeconds()).padStart(2, '0');
 
         if (appSettings.scheduleEnabled) {
             els.scheduleBadge.classList.remove('hidden');
-            var cur = h * 60 + m;
+            var cur = now.getHours() * 60 + now.getMinutes();
             var sp = appSettings.scheduleStart.split(':');
             var ep = appSettings.scheduleEnd.split(':');
             var sm = parseInt(sp[0]) * 60 + parseInt(sp[1]);
@@ -122,36 +117,42 @@
             card.appendChild(icon);
             card.appendChild(info);
             card.appendChild(editBtn);
-
             card.addEventListener('click', function () {
                 Sound.unlock();
                 startTimer(p);
             });
-
             els.presetList.appendChild(card);
         });
     }
 
     // ── Timer ──
+    var currentPreset = null;
+
     function startTimer(preset) {
+        currentPreset = preset;
         els.timerPresetName.textContent = preset.name;
-        els.timerBarTotal.textContent = formatTime(Settings.getRoundMs(preset));
         Timer.configure(preset);
         showScreen('timer');
         Bridge.keepScreenOn(true);
     }
 
     function formatTime(ms) {
-        var totalSec = Math.ceil(ms / 1000);
-        var min = Math.floor(totalSec / 60);
-        var sec = totalSec % 60;
-        return min + ':' + (sec < 10 ? '0' : '') + sec;
+        var sec = Math.ceil(ms / 1000);
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        return m + ':' + String(s).padStart(2, '0');
     }
 
     function updateTimerDisplay(status) {
-        els.countdown.textContent = formatTime(status.remainingMs);
-        els.timerBarFill.style.width = (status.progress * 100) + '%';
+        var isCountdown = status.isWarning && status.countdownSec > 0 && status.countdownSec <= 10;
 
+        if (isCountdown) {
+            els.countdown.textContent = status.countdownSec;
+        } else {
+            els.countdown.textContent = formatTime(status.remainingMs);
+        }
+
+        els.timerBarFill.style.width = (status.progress * 100) + '%';
         var elapsed = status.totalMs - status.remainingMs;
         els.timerBarElapsed.textContent = formatTime(elapsed);
         els.timerBarTotal.textContent = formatTime(status.totalMs);
@@ -165,33 +166,30 @@
             idle: '준비',
             running: '스파링',
             paused: '일시정지',
-            resting: '휴식',
-            finished: '종료'
+            resting: '휴식'
         };
-        els.statusLabel.textContent = status.isWarning ? '경고' : (labels[status.state] || '');
+        els.statusLabel.textContent = status.isWarning ? '스파링' : (labels[status.state] || '');
 
-        var btnLabels = { idle: '시작', finished: '시작', paused: '계속' };
+        var btnLabels = { idle: '시작', paused: '계속' };
         els.btnStart.textContent = btnLabels[status.state] || '정지';
     }
 
     Timer.on('update', updateTimerDisplay);
 
     Timer.on('roundStart', function () {
-        if (appSettings.soundOn) Sound.playBell();
+        if (appSettings.soundOn) Sound.playRoundStart(appSettings.bellType);
         if (appSettings.vibrateOn) Bridge.vibrate(300);
     });
     Timer.on('restStart', function () {
-        if (appSettings.soundOn) Sound.playRoundEnd();
+        if (appSettings.soundOn) Sound.playRoundEnd(appSettings.bellType);
         if (appSettings.vibrateOn) Bridge.vibrate([200, 100, 200]);
     });
-    Timer.on('warning', function () {
-        if (appSettings.soundOn) Sound.playWarning();
+    Timer.on('warningStart', function () {
         if (appSettings.vibrateOn) Bridge.vibrate(100);
     });
-    Timer.on('finish', function () {
-        if (appSettings.soundOn) Sound.playFinish();
-        if (appSettings.vibrateOn) Bridge.vibrate([300, 100, 300, 100, 500]);
-        setTimeout(function () { Bridge.keepScreenOn(false); }, 5000);
+    Timer.on('countTick', function (sec) {
+        if (appSettings.soundOn) Sound.playCountTick();
+        if (appSettings.vibrateOn) Bridge.vibrate(50);
     });
 
     els.btnStart.addEventListener('click', function () {
@@ -220,7 +218,6 @@
             els.peRoundSec.value = preset.roundSec;
             els.peRestMin.value = preset.restMin;
             els.peRestSec.value = preset.restSec;
-            els.peRounds.value = preset.rounds;
             els.peWarning.value = preset.warningSec;
             els.btnDeletePreset.classList.remove('hidden');
         } else {
@@ -231,7 +228,6 @@
             els.peRoundSec.value = 0;
             els.peRestMin.value = 1;
             els.peRestSec.value = 0;
-            els.peRounds.value = 5;
             els.peWarning.value = 10;
             els.btnDeletePreset.classList.add('hidden');
         }
@@ -248,8 +244,7 @@
             roundSec: clamp(parseInt(els.peRoundSec.value) || 0, 0, 59),
             restMin: clamp(parseInt(els.peRestMin.value) || 0, 0, 99),
             restSec: clamp(parseInt(els.peRestSec.value) || 0, 0, 59),
-            rounds: clamp(parseInt(els.peRounds.value) || 1, 1, 99),
-            warningSec: clamp(parseInt(els.peWarning.value) || 0, 0, 60)
+            warningSec: clamp(parseInt(els.peWarning.value) || 0, 0, 30)
         };
         if (editingPresetId) {
             var idx = presets.findIndex(function (x) { return x.id === editingPresetId; });
@@ -273,6 +268,16 @@
     els.btnAddPreset.addEventListener('click', function () { openPresetEdit(null); });
 
     // ── App Settings ──
+    function getSelectedBellType() {
+        var checked = document.querySelector('input[name="bell-type"]:checked');
+        return checked ? parseInt(checked.value) : 1;
+    }
+
+    function setSelectedBellType(v) {
+        var el = document.querySelector('input[name="bell-type"][value="' + v + '"]');
+        if (el) el.checked = true;
+    }
+
     els.btnAppSettings.addEventListener('click', function () {
         els.asEnabled.checked = appSettings.scheduleEnabled;
         els.asStart.value = appSettings.scheduleStart;
@@ -280,6 +285,7 @@
         els.asSound.checked = appSettings.soundOn;
         els.asVolume.value = appSettings.volume;
         els.asVibrate.checked = appSettings.vibrateOn;
+        setSelectedBellType(appSettings.bellType);
         showScreen('settings');
     });
 
@@ -290,7 +296,8 @@
             scheduleEnd: els.asEnd.value || '22:00',
             soundOn: els.asSound.checked,
             volume: parseInt(els.asVolume.value) || 80,
-            vibrateOn: els.asVibrate.checked
+            vibrateOn: els.asVibrate.checked,
+            bellType: getSelectedBellType()
         };
         Settings.saveAppSettings(appSettings);
         Sound.setVolume(appSettings.volume);
@@ -300,7 +307,7 @@
     els.btnTestSound.addEventListener('click', function () {
         Sound.unlock();
         Sound.setVolume(parseInt(els.asVolume.value) || 80);
-        Sound.playBell();
+        Sound.playBell(getSelectedBellType());
     });
 
     // ── Close & Stepper buttons ──

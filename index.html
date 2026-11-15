@@ -18,61 +18,56 @@
 
         <!-- 대시보드 -->
         <div id="screen-dashboard" class="screen active">
-            <div class="dash-clock">
+            <div class="dash-header">
                 <div id="dash-date"></div>
                 <div id="dash-time"></div>
             </div>
             <div id="schedule-badge" class="hidden">
                 <span id="schedule-text"></span>
             </div>
-            <div class="dash-section-label">프리셋</div>
+            <div class="dash-label">프리셋</div>
             <div id="preset-list"></div>
             <div class="dash-bottom">
-                <button id="btn-add-preset" class="btn-outline">+ 새 프리셋</button>
-                <button id="btn-app-settings" class="btn-icon-circle">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-                    </svg>
+                <button id="btn-add-preset" class="btn-add">+ 새 프리셋</button>
+                <button id="btn-app-settings" class="btn-settings-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                 </button>
             </div>
         </div>
 
         <!-- 타이머 -->
         <div id="screen-timer" class="screen">
-            <div id="timer-top-bar">
-                <button id="btn-back" class="btn-text-back">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+            <div id="timer-top">
+                <button id="btn-back" class="btn-back">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
                 <span id="timer-preset-name"></span>
-                <span></span>
             </div>
             <div id="timer-body">
                 <div id="status-label">준비</div>
                 <div id="countdown">5:00</div>
             </div>
             <div id="timer-bar-wrap">
-                <div id="timer-bar">
-                    <div id="timer-bar-fill"></div>
-                </div>
+                <div id="timer-bar"><div id="timer-bar-fill"></div></div>
                 <div id="timer-bar-labels">
                     <span id="timer-bar-elapsed">0:00</span>
                     <span id="timer-bar-total">5:00</span>
                 </div>
             </div>
             <div id="timer-controls">
-                <button id="btn-reset" class="btn-timer">리셋</button>
-                <button id="btn-start" class="btn-timer-primary">시작</button>
+                <button id="btn-reset" class="btn-ctrl">리셋</button>
+                <button id="btn-start" class="btn-ctrl-primary">시작</button>
             </div>
         </div>
 
         <!-- 프리셋 편집 -->
         <div id="screen-preset-edit" class="screen">
             <div class="sheet-header">
-                <button class="btn-text-back" data-close="preset-edit">
+                <button class="btn-back" data-close="1">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
                 <h2 id="preset-edit-title">프리셋 추가</h2>
-                <button id="btn-save-preset" class="btn-text-save">저장</button>
+                <button id="btn-save-preset" class="btn-save">저장</button>
             </div>
             <div class="sheet-body">
                 <div class="form-group">
@@ -80,7 +75,7 @@
                     <input type="text" id="pe-name" class="form-input" placeholder="예: 기본 스파링">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">스파링</label>
+                    <label class="form-label">스파링 시간</label>
                     <div class="time-picker">
                         <div class="time-unit">
                             <input type="number" id="pe-round-min" min="0" max="99" value="5" class="time-num">
@@ -93,7 +88,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">휴식</label>
+                    <label class="form-label">휴식 시간</label>
                     <div class="time-picker">
                         <div class="time-unit">
                             <input type="number" id="pe-rest-min" min="0" max="99" value="1" class="time-num">
@@ -106,19 +101,10 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">반복</label>
-                    <div class="stepper">
-                        <button class="stepper-btn" data-target="pe-rounds" data-delta="-1">&minus;</button>
-                        <input type="number" id="pe-rounds" min="1" max="99" value="5" class="stepper-val">
-                        <button class="stepper-btn" data-target="pe-rounds" data-delta="1">+</button>
-                        <span class="stepper-suffix">회</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">경고</label>
+                    <label class="form-label">종료 카운트다운</label>
                     <div class="stepper">
                         <button class="stepper-btn" data-target="pe-warning" data-delta="-5">&minus;</button>
-                        <input type="number" id="pe-warning" min="0" max="60" value="10" class="stepper-val">
+                        <input type="number" id="pe-warning" min="0" max="30" value="10" class="stepper-val">
                         <button class="stepper-btn" data-target="pe-warning" data-delta="5">+</button>
                         <span class="stepper-suffix">초 전</span>
                     </div>
@@ -130,11 +116,11 @@
         <!-- 앱 설정 -->
         <div id="screen-settings" class="screen">
             <div class="sheet-header">
-                <button class="btn-text-back" data-close="settings">
+                <button class="btn-back" data-close="1">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
                 <h2>설정</h2>
-                <button id="btn-save-app-settings" class="btn-text-save">저장</button>
+                <button id="btn-save-app-settings" class="btn-save">저장</button>
             </div>
             <div class="sheet-body">
                 <div class="form-section">운영 스케줄</div>
@@ -151,7 +137,18 @@
                     <input type="time" id="as-end" value="22:00" class="form-time">
                 </div>
                 <div class="form-divider"></div>
-                <div class="form-section">소리</div>
+                <div class="form-section">벨소리</div>
+                <div id="bell-selector" class="bell-selector">
+                    <label class="bell-opt"><input type="radio" name="bell-type" value="1" checked><span>클래식 벨</span></label>
+                    <label class="bell-opt"><input type="radio" name="bell-type" value="2"><span>전자 비프</span></label>
+                    <label class="bell-opt"><input type="radio" name="bell-type" value="3"><span>에어혼</span></label>
+                </div>
+                <div class="form-row">
+                    <span>벨소리 테스트</span>
+                    <button id="btn-test-sound" class="btn-small">재생</button>
+                </div>
+                <div class="form-divider"></div>
+                <div class="form-section">소리 · 진동</div>
                 <div class="form-row">
                     <span>효과음</span>
                     <label class="toggle"><input type="checkbox" id="as-sound" checked><span class="toggle-track"></span></label>
@@ -163,10 +160,6 @@
                 <div class="form-row">
                     <span>진동</span>
                     <label class="toggle"><input type="checkbox" id="as-vibrate" checked><span class="toggle-track"></span></label>
-                </div>
-                <div class="form-row">
-                    <span>벨소리 테스트</span>
-                    <button id="btn-test-sound" class="btn-small">재생</button>
                 </div>
             </div>
         </div>

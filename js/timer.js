@@ -3,53 +3,44 @@ var Timer = (function () {
         IDLE: 'idle',
         RUNNING: 'running',
         PAUSED: 'paused',
-        RESTING: 'resting',
-        FINISHED: 'finished'
+        RESTING: 'resting'
     };
 
     var state = State.IDLE;
-    var currentRound = 0;
     var remainingMs = 0;
     var totalMs = 0;
     var endTime = 0;
     var rafId = null;
     var warningFired = false;
+    var lastCountSec = -1;
     var preset = null;
     var callbacks = {};
 
-    function on(event, fn) {
-        callbacks[event] = fn;
-    }
-
-    function emit(event, data) {
-        if (callbacks[event]) callbacks[event](data);
-    }
+    function on(event, fn) { callbacks[event] = fn; }
+    function emit(event, data) { if (callbacks[event]) callbacks[event](data); }
 
     function configure(p) {
         preset = p;
         remainingMs = Settings.getRoundMs(p);
         totalMs = remainingMs;
-        currentRound = 0;
         state = State.IDLE;
         warningFired = false;
+        lastCountSec = -1;
         emit('update', getStatus());
     }
 
     function start() {
-        if (state === State.FINISHED) return;
-
         if (state === State.IDLE) {
-            currentRound = 1;
             remainingMs = Settings.getRoundMs(preset);
             totalMs = remainingMs;
             state = State.RUNNING;
             warningFired = false;
-            emit('roundStart', { round: currentRound });
+            lastCountSec = -1;
+            emit('roundStart');
         } else if (state === State.PAUSED) {
             if (remainingMs <= 0) return;
             state = totalMs === Settings.getRestMs(preset) ? State.RESTING : State.RUNNING;
         }
-
         endTime = Date.now() + remainingMs;
         tick();
     }
@@ -67,22 +58,28 @@ var Timer = (function () {
         cancelAnimationFrame(rafId);
         rafId = null;
         state = State.IDLE;
-        currentRound = 0;
         remainingMs = Settings.getRoundMs(preset);
         totalMs = remainingMs;
         warningFired = false;
+        lastCountSec = -1;
         emit('update', getStatus());
     }
 
     function tick() {
         rafId = requestAnimationFrame(function () {
             remainingMs = Math.max(0, endTime - Date.now());
+            var warningMs = Settings.getWarningMs(preset);
 
-            if (!warningFired && state === State.RUNNING) {
-                var warningMs = Settings.getWarningMs(preset);
-                if (warningMs > 0 && remainingMs <= warningMs && remainingMs > 0) {
-                    warningFired = true;
-                    emit('warning', { remaining: remainingMs });
+            if (!warningFired && state === State.RUNNING && warningMs > 0 && remainingMs <= warningMs && remainingMs > 0) {
+                warningFired = true;
+                emit('warningStart');
+            }
+
+            if (warningFired && state === State.RUNNING && remainingMs > 0) {
+                var sec = Math.ceil(remainingMs / 1000);
+                if (sec !== lastCountSec) {
+                    lastCountSec = sec;
+                    emit('countTick', sec);
                 }
             }
 
@@ -90,7 +87,6 @@ var Timer = (function () {
                 onPeriodEnd();
                 return;
             }
-
             emit('update', getStatus());
             tick();
         });
@@ -98,48 +94,41 @@ var Timer = (function () {
 
     function onPeriodEnd() {
         if (state === State.RUNNING) {
-            if (currentRound >= preset.rounds) {
-                state = State.FINISHED;
-                emit('finish', { round: currentRound });
-                emit('update', getStatus());
-                return;
-            }
             state = State.RESTING;
             remainingMs = Settings.getRestMs(preset);
             totalMs = remainingMs;
             warningFired = false;
+            lastCountSec = -1;
             endTime = Date.now() + remainingMs;
-            emit('restStart', { round: currentRound });
+            emit('restStart');
             emit('update', getStatus());
             tick();
         } else if (state === State.RESTING) {
-            currentRound++;
             state = State.RUNNING;
             remainingMs = Settings.getRoundMs(preset);
             totalMs = remainingMs;
             warningFired = false;
+            lastCountSec = -1;
             endTime = Date.now() + remainingMs;
-            emit('roundStart', { round: currentRound });
+            emit('roundStart');
             emit('update', getStatus());
             tick();
         }
     }
 
     function getStatus() {
+        var warningMs = preset ? Settings.getWarningMs(preset) : 0;
         return {
             state: state,
-            currentRound: currentRound,
-            totalRounds: preset ? preset.rounds : 0,
             remainingMs: remainingMs,
             totalMs: totalMs,
             progress: totalMs > 0 ? remainingMs / totalMs : 1,
-            isWarning: warningFired && state === State.RUNNING
+            isWarning: warningFired && state === State.RUNNING,
+            countdownSec: (warningFired && state === State.RUNNING) ? Math.ceil(remainingMs / 1000) : 0
         };
     }
 
-    function getState() {
-        return state;
-    }
+    function getState() { return state; }
 
     return {
         State: State,

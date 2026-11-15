@@ -3,9 +3,9 @@ var Settings = (function () {
     var APP_KEY = 'bjj-app-settings';
 
     var defaultPresets = [
-        { id: 'p1', name: '기본 스파링', roundMin: 5, roundSec: 0, restMin: 1, restSec: 0, rounds: 5, warningSec: 10 },
-        { id: 'p2', name: '짧은 스파링', roundMin: 4, roundSec: 0, restMin: 2, restSec: 0, rounds: 5, warningSec: 10 },
-        { id: 'p3', name: '롱 스파링', roundMin: 7, roundSec: 0, restMin: 1, restSec: 0, rounds: 3, warningSec: 15 }
+        { id: 'p1', name: '기본 스파링', roundMin: 5, roundSec: 0, restMin: 1, restSec: 0, warningSec: 10 },
+        { id: 'p2', name: '짧은 스파링', roundMin: 4, roundSec: 0, restMin: 2, restSec: 0, warningSec: 10 },
+        { id: 'p3', name: '롱 스파링', roundMin: 7, roundSec: 0, restMin: 1, restSec: 0, warningSec: 15 }
     ];
 
     var defaultAppSettings = {
@@ -14,19 +14,26 @@ var Settings = (function () {
         scheduleEnd: '22:00',
         soundOn: true,
         volume: 80,
-        vibrateOn: true
+        vibrateOn: true,
+        bellType: 1
     };
 
     function loadPresets() {
         try {
             var raw = localStorage.getItem(PRESETS_KEY);
-            if (raw) return JSON.parse(raw);
-        } catch (e) { /* ignore */ }
+            if (raw) {
+                var parsed = JSON.parse(raw);
+                return parsed.map(function (p) {
+                    delete p.rounds;
+                    return p;
+                });
+            }
+        } catch (e) {}
         return defaultPresets.map(function (p) { return Object.assign({}, p); });
     }
 
     function savePresets(presets) {
-        try { localStorage.setItem(PRESETS_KEY, JSON.stringify(presets)); } catch (e) { /* ignore */ }
+        try { localStorage.setItem(PRESETS_KEY, JSON.stringify(presets)); } catch (e) {}
     }
 
     function loadAppSettings() {
@@ -40,12 +47,12 @@ var Settings = (function () {
                 }
                 return merged;
             }
-        } catch (e) { /* ignore */ }
+        } catch (e) {}
         return Object.assign({}, defaultAppSettings);
     }
 
     function saveAppSettings(s) {
-        try { localStorage.setItem(APP_KEY, JSON.stringify(s)); } catch (e) { /* ignore */ }
+        try { localStorage.setItem(APP_KEY, JSON.stringify(s)); } catch (e) {}
     }
 
     function generateId() {
@@ -69,7 +76,7 @@ var Settings = (function () {
         if (p.roundSec > 0) round += p.roundSec + '초';
         var rest = p.restMin + '분';
         if (p.restSec > 0) rest += p.restSec + '초';
-        return '스파링 ' + round + ' / 휴식 ' + rest + ' / ' + p.rounds + '라운드';
+        return '스파링 ' + round + '  ·  휴식 ' + rest;
     }
 
     return {
