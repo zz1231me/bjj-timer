@@ -219,7 +219,7 @@ html, body {
 }
 
 #cd-sec-line {
-    font-size: min(56vw, 320px);
+    font-size: min(72vw, 420px);
 }
 
 #countdown.two-line #cd-min-line {
@@ -303,7 +303,7 @@ html, body {
 /* running bigsec (<=60s): yellow, bigger */
 .state-bigsec #screen-timer { background: var(--bg); }
 .state-bigsec #countdown { color: var(--yellow); }
-.state-bigsec #cd-sec-line { font-size: min(68vw, 380px); }
+.state-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
 .state-bigsec #timer-bar-fill,
 .state-bigsec #timer-bar-top-fill { background: var(--yellow); }
 
@@ -319,7 +319,7 @@ html, body {
 /* resting bigsec (<=60s): blue, bigger */
 .state-resting-bigsec #screen-timer { background: var(--blue-bg); }
 .state-resting-bigsec #countdown { color: var(--blue); }
-.state-resting-bigsec #cd-sec-line { font-size: min(68vw, 380px); }
+.state-resting-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
 .state-resting-bigsec #timer-bar-fill,
 .state-resting-bigsec #timer-bar-top-fill { background: var(--blue); }
 .state-resting-bigsec .btn-ctrl-primary { background: var(--blue); }
@@ -331,7 +331,7 @@ html, body {
     animation: pulse-warn 1s ease-in-out infinite;
 }
 .state-warning #countdown { color: var(--orange); }
-.state-warning #cd-sec-line { font-size: min(70vw, 400px); }
+.state-warning #cd-sec-line { font-size: min(85vw, 500px); }
 .state-warning #timer-bar-fill,
 .state-warning #timer-bar-top-fill { background: var(--orange); }
 .state-warning .btn-ctrl-primary { background: var(--orange); }
