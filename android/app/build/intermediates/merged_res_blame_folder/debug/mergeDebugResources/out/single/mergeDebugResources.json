@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.bjjtimer.app-debug-21:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.bjjtimer.app-main-23:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.bjjtimer.app-debug-21:/layout_activity_main.xml.flat",
+        "source": "com.bjjtimer.app-main-23:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.bjjtimer.app-debug-21:/mipmap-anydpi-v26_ic_launcher_foreground.xml.flat",
+        "source": "com.bjjtimer.app-main-23:/mipmap-anydpi-v26/ic_launcher_foreground.xml"
+    }
+]
