@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a1a">
+    <title>BJJ Timer</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="timer-screen">
+            <div id="round-info">
+                ROUND <span id="round-current">0</span> / <span id="round-total">0</span>
+            </div>
+            <div id="status-label">READY</div>
+            <div id="countdown">5:00</div>
+            <div id="progress-bar">
+                <div id="progress-fill"></div>
+            </div>
+            <div id="controls">
+                <button id="btn-reset" class="ctrl-btn">RESET</button>
+                <button id="btn-start" class="ctrl-btn primary">START</button>
+                <button id="btn-settings" class="ctrl-btn icon-btn">&#9881;</button>
+            </div>
+        </div>
+
+        <div id="settings-screen" class="hidden">
+            <div class="settings-header">
+                <h2>설정</h2>
+                <button id="btn-close-settings" class="close-btn">&times;</button>
+            </div>
+            <div class="settings-body">
+                <div class="setting-item">
+                    <label>라운드 시간</label>
+                    <div class="time-input">
+                        <input type="number" id="set-round-min" min="0" max="99" value="5">
+                        <span class="colon">:</span>
+                        <input type="number" id="set-round-sec" min="0" max="59" value="0">
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>휴식 시간</label>
+                    <div class="time-input">
+                        <input type="number" id="set-rest-min" min="0" max="99" value="1">
+                        <span class="colon">:</span>
+                        <input type="number" id="set-rest-sec" min="0" max="59" value="0">
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>라운드 수</label>
+                    <div class="number-input">
+                        <button class="adj-btn" data-target="set-rounds" data-delta="-1">&minus;</button>
+                        <input type="number" id="set-rounds" min="1" max="99" value="5">
+                        <button class="adj-btn" data-target="set-rounds" data-delta="1">+</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>경고 (초 전)</label>
+                    <div class="number-input">
+                        <button class="adj-btn" data-target="set-warning" data-delta="-5">&minus;</button>
+                        <input type="number" id="set-warning" min="0" max="60" value="10">
+                        <button class="adj-btn" data-target="set-warning" data-delta="5">+</button>
+                    </div>
+                </div>
+                <div class="setting-item toggle-item">
+                    <label>소리</label>
+                    <label class="switch">
+                        <input type="checkbox" id="set-sound" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item toggle-item">
+                    <label>진동</label>
+                    <label class="switch">
+                        <input type="checkbox" id="set-vibrate" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <button id="btn-save-settings" class="save-btn">저장</button>
+        </div>
+    </div>
+
+    <script src="js/settings.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/bridge.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
