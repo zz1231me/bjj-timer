@@ -2,14 +2,9 @@
     var $ = function (id) { return document.getElementById(id); };
     var app = $('app');
 
-    // ── State ──
-
     var presets = Settings.loadPresets();
     var appSettings = Settings.loadAppSettings();
     var editingPresetId = null;
-    var clockInterval = null;
-
-    // ── Elements ──
 
     var screens = {
         dashboard: $('screen-dashboard'),
@@ -28,11 +23,11 @@
         btnAppSettings: $('btn-app-settings'),
         btnBack: $('btn-back'),
         timerPresetName: $('timer-preset-name'),
-        roundCurrent: $('round-current'),
-        roundTotal: $('round-total'),
         statusLabel: $('status-label'),
         countdown: $('countdown'),
-        progressFill: $('progress-fill'),
+        timerBarFill: $('timer-bar-fill'),
+        timerBarElapsed: $('timer-bar-elapsed'),
+        timerBarTotal: $('timer-bar-total'),
         btnReset: $('btn-reset'),
         btnStart: $('btn-start'),
         presetEditTitle: $('preset-edit-title'),
@@ -55,8 +50,6 @@
         btnSaveAppSettings: $('btn-save-app-settings')
     };
 
-    // ── Navigation ──
-
     function showScreen(name) {
         Object.keys(screens).forEach(function (k) {
             screens[k].classList.remove('active');
@@ -64,89 +57,70 @@
         screens[name].classList.add('active');
     }
 
-    // ── Dashboard Clock ──
-
+    // ── Clock ──
     function updateClock() {
         var now = new Date();
         var days = ['일', '월', '화', '수', '목', '금', '토'];
-        var y = now.getFullYear();
-        var m = now.getMonth() + 1;
-        var d = now.getDate();
-        var day = days[now.getDay()];
-        els.dashDate.textContent = y + '년 ' + m + '월 ' + d + '일 (' + day + ')';
+        els.dashDate.textContent =
+            now.getFullYear() + '.' +
+            (now.getMonth() + 1 < 10 ? '0' : '') + (now.getMonth() + 1) + '.' +
+            (now.getDate() < 10 ? '0' : '') + now.getDate() +
+            ' ' + days[now.getDay()] + '요일';
 
-        var h = now.getHours();
-        var mi = now.getMinutes();
-        var s = now.getSeconds();
+        var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
         els.dashTime.textContent =
             (h < 10 ? '0' : '') + h + ':' +
-            (mi < 10 ? '0' : '') + mi + ':' +
+            (m < 10 ? '0' : '') + m + ':' +
             (s < 10 ? '0' : '') + s;
 
-        updateScheduleBadge(now);
-    }
-
-    function updateScheduleBadge(now) {
-        if (!appSettings.scheduleEnabled) {
+        if (appSettings.scheduleEnabled) {
+            els.scheduleBadge.classList.remove('hidden');
+            var cur = h * 60 + m;
+            var sp = appSettings.scheduleStart.split(':');
+            var ep = appSettings.scheduleEnd.split(':');
+            var sm = parseInt(sp[0]) * 60 + parseInt(sp[1]);
+            var em = parseInt(ep[0]) * 60 + parseInt(ep[1]);
+            var active = sm <= em ? (cur >= sm && cur < em) : (cur >= sm || cur < em);
+            els.scheduleText.textContent =
+                appSettings.scheduleStart + ' ~ ' + appSettings.scheduleEnd +
+                (active ? '  운영중' : '  대기중');
+        } else {
             els.scheduleBadge.classList.add('hidden');
-            return;
         }
-        els.scheduleBadge.classList.remove('hidden');
-        var currentMin = now.getHours() * 60 + now.getMinutes();
-        var startParts = appSettings.scheduleStart.split(':');
-        var endParts = appSettings.scheduleEnd.split(':');
-        var startMin = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
-        var endMin = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
-
-        var active = startMin <= endMin
-            ? (currentMin >= startMin && currentMin < endMin)
-            : (currentMin >= startMin || currentMin < endMin);
-
-        els.scheduleText.textContent = '⏰ ' + appSettings.scheduleStart + ' ~ ' + appSettings.scheduleEnd +
-            (active ? ' (운영중)' : ' (대기)');
     }
 
-    // ── Preset List ──
-
+    // ── Presets ──
     function renderPresets() {
         els.presetList.innerHTML = '';
         presets.forEach(function (p) {
             var card = document.createElement('div');
             card.className = 'preset-card';
 
+            var icon = document.createElement('div');
+            icon.className = 'preset-icon';
+            icon.textContent = '▶';
+
             var info = document.createElement('div');
             info.className = 'preset-info';
-
-            var name = document.createElement('div');
-            name.className = 'preset-name';
-            name.textContent = p.name;
-
-            var detail = document.createElement('div');
-            detail.className = 'preset-detail';
-            detail.textContent = Settings.formatPresetDetail(p);
-
-            info.appendChild(name);
-            info.appendChild(detail);
-
-            var playBtn = document.createElement('button');
-            playBtn.className = 'preset-play';
-            playBtn.innerHTML = '&#9654;';
-            playBtn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                Sound.unlock();
-                startTimer(p);
-            });
+            var nm = document.createElement('div');
+            nm.className = 'preset-name';
+            nm.textContent = p.name;
+            var dt = document.createElement('div');
+            dt.className = 'preset-detail';
+            dt.textContent = Settings.formatPresetDetail(p);
+            info.appendChild(nm);
+            info.appendChild(dt);
 
             var editBtn = document.createElement('button');
-            editBtn.className = 'preset-edit';
-            editBtn.innerHTML = '&#9998;';
+            editBtn.className = 'preset-edit-btn';
+            editBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
             editBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 openPresetEdit(p);
             });
 
+            card.appendChild(icon);
             card.appendChild(info);
-            card.appendChild(playBtn);
             card.appendChild(editBtn);
 
             card.addEventListener('click', function () {
@@ -159,9 +133,9 @@
     }
 
     // ── Timer ──
-
     function startTimer(preset) {
         els.timerPresetName.textContent = preset.name;
+        els.timerBarTotal.textContent = formatTime(Settings.getRoundMs(preset));
         Timer.configure(preset);
         showScreen('timer');
         Bridge.keepScreenOn(true);
@@ -174,37 +148,30 @@
         return min + ':' + (sec < 10 ? '0' : '') + sec;
     }
 
-    function setTimerStateClass(stateName) {
-        app.className = stateName ? 'state-' + stateName : '';
-    }
-
     function updateTimerDisplay(status) {
-        els.roundCurrent.textContent = status.currentRound || '-';
-        els.roundTotal.textContent = status.totalRounds;
         els.countdown.textContent = formatTime(status.remainingMs);
-        els.progressFill.style.width = (status.progress * 100) + '%';
+        els.timerBarFill.style.width = (status.progress * 100) + '%';
 
-        var stateClass = status.state;
-        if (status.isWarning) stateClass = 'warning';
-        if (status.state === Timer.State.PAUSED) stateClass = 'paused';
-        setTimerStateClass(stateClass);
+        var elapsed = status.totalMs - status.remainingMs;
+        els.timerBarElapsed.textContent = formatTime(elapsed);
+        els.timerBarTotal.textContent = formatTime(status.totalMs);
+
+        var cls = status.state;
+        if (status.isWarning) cls = 'warning';
+        if (status.state === Timer.State.PAUSED) cls = 'paused';
+        app.className = cls ? 'state-' + cls : '';
 
         var labels = {
             idle: '준비',
-            running: '스파링!',
+            running: '스파링',
             paused: '일시정지',
             resting: '휴식',
-            finished: '종료!'
+            finished: '종료'
         };
-        els.statusLabel.textContent = status.isWarning ? '경고!' : (labels[status.state] || '');
+        els.statusLabel.textContent = status.isWarning ? '경고' : (labels[status.state] || '');
 
-        if (status.state === Timer.State.IDLE || status.state === Timer.State.FINISHED) {
-            els.btnStart.textContent = '시작';
-        } else if (status.state === Timer.State.PAUSED) {
-            els.btnStart.textContent = '계속';
-        } else {
-            els.btnStart.textContent = '정지';
-        }
+        var btnLabels = { idle: '시작', finished: '시작', paused: '계속' };
+        els.btnStart.textContent = btnLabels[status.state] || '정지';
     }
 
     Timer.on('update', updateTimerDisplay);
@@ -213,17 +180,14 @@
         if (appSettings.soundOn) Sound.playBell();
         if (appSettings.vibrateOn) Bridge.vibrate(300);
     });
-
     Timer.on('restStart', function () {
         if (appSettings.soundOn) Sound.playRoundEnd();
         if (appSettings.vibrateOn) Bridge.vibrate([200, 100, 200]);
     });
-
     Timer.on('warning', function () {
         if (appSettings.soundOn) Sound.playWarning();
         if (appSettings.vibrateOn) Bridge.vibrate(100);
     });
-
     Timer.on('finish', function () {
         if (appSettings.soundOn) Sound.playFinish();
         if (appSettings.vibrateOn) Bridge.vibrate([300, 100, 300, 100, 500]);
@@ -232,27 +196,21 @@
 
     els.btnStart.addEventListener('click', function () {
         Sound.unlock();
-        var state = Timer.getState();
-        if (state === Timer.State.RUNNING || state === Timer.State.RESTING) {
-            Timer.pause();
-        } else {
-            Timer.start();
-        }
+        var s = Timer.getState();
+        if (s === Timer.State.RUNNING || s === Timer.State.RESTING) Timer.pause();
+        else Timer.start();
     });
 
-    els.btnReset.addEventListener('click', function () {
-        Timer.reset();
-    });
+    els.btnReset.addEventListener('click', function () { Timer.reset(); });
 
     els.btnBack.addEventListener('click', function () {
         Timer.reset();
         Bridge.keepScreenOn(false);
-        setTimerStateClass(null);
+        app.className = '';
         showScreen('dashboard');
     });
 
     // ── Preset Edit ──
-
     function openPresetEdit(preset) {
         if (preset) {
             editingPresetId = preset.id;
@@ -280,9 +238,7 @@
         showScreen('presetEdit');
     }
 
-    function clamp(v, min, max) {
-        return Math.max(min, Math.min(max, v));
-    }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
     els.btnSavePreset.addEventListener('click', function () {
         var p = {
@@ -295,14 +251,12 @@
             rounds: clamp(parseInt(els.peRounds.value) || 1, 1, 99),
             warningSec: clamp(parseInt(els.peWarning.value) || 0, 0, 60)
         };
-
         if (editingPresetId) {
             var idx = presets.findIndex(function (x) { return x.id === editingPresetId; });
             if (idx >= 0) presets[idx] = p;
         } else {
             presets.push(p);
         }
-
         Settings.savePresets(presets);
         renderPresets();
         showScreen('dashboard');
@@ -316,12 +270,9 @@
         showScreen('dashboard');
     });
 
-    els.btnAddPreset.addEventListener('click', function () {
-        openPresetEdit(null);
-    });
+    els.btnAddPreset.addEventListener('click', function () { openPresetEdit(null); });
 
     // ── App Settings ──
-
     els.btnAppSettings.addEventListener('click', function () {
         els.asEnabled.checked = appSettings.scheduleEnabled;
         els.asStart.value = appSettings.scheduleStart;
@@ -352,32 +303,22 @@
         Sound.playBell();
     });
 
-    // ── Close buttons ──
-
-    document.querySelectorAll('.close-btn[data-close]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            showScreen('dashboard');
-        });
+    // ── Close & Stepper buttons ──
+    document.querySelectorAll('[data-close]').forEach(function (btn) {
+        btn.addEventListener('click', function () { showScreen('dashboard'); });
     });
 
-    // ── Adjuster buttons ──
-
-    document.querySelectorAll('.adj-btn').forEach(function (btn) {
+    document.querySelectorAll('.stepper-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            var target = $(btn.dataset.target);
-            var delta = parseInt(btn.dataset.delta);
-            var val = (parseInt(target.value) || 0) + delta;
-            var min = parseInt(target.min) || 0;
-            var max = parseInt(target.max) || 99;
-            target.value = clamp(val, min, max);
+            var t = $(btn.dataset.target);
+            var d = parseInt(btn.dataset.delta);
+            t.value = clamp((parseInt(t.value) || 0) + d, parseInt(t.min) || 0, parseInt(t.max) || 99);
         });
     });
 
     // ── Init ──
-
     Sound.setVolume(appSettings.volume);
     renderPresets();
     updateClock();
-    clockInterval = setInterval(updateClock, 1000);
-
+    setInterval(updateClock, 1000);
 })();
