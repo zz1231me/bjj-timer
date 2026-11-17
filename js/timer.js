@@ -66,35 +66,46 @@ var Timer = (function () {
         });
     }
 
+    var transitionDelay = 1000;
+
     function onPeriodEnd() {
         if (state === State.RUNNING) {
             var restMs = Settings.getRestMs(preset);
+            emit('restStart');
+            emit('update', getStatus());
             if (restMs <= 0) {
-                state = State.RUNNING;
-                remainingMs = Settings.getRoundMs(preset);
-                totalMs = remainingMs;
-                endTime = Date.now() + remainingMs;
-                emit('restStart');
-                emit('roundStart');
-                emit('update', getStatus());
-                tick();
+                setTimeout(function () {
+                    if (state !== State.RUNNING) return;
+                    remainingMs = Settings.getRoundMs(preset);
+                    totalMs = remainingMs;
+                    endTime = Date.now() + remainingMs;
+                    emit('roundStart');
+                    emit('update', getStatus());
+                    tick();
+                }, transitionDelay);
                 return;
             }
             state = State.RESTING;
             remainingMs = restMs;
             totalMs = remainingMs;
-            endTime = Date.now() + remainingMs;
-            emit('restStart');
-            emit('update', getStatus());
-            tick();
+            setTimeout(function () {
+                if (state !== State.RESTING) return;
+                endTime = Date.now() + remainingMs;
+                emit('update', getStatus());
+                tick();
+            }, transitionDelay);
         } else if (state === State.RESTING) {
+            emit('roundStart');
+            emit('update', getStatus());
             state = State.RUNNING;
             remainingMs = Settings.getRoundMs(preset);
             totalMs = remainingMs;
-            endTime = Date.now() + remainingMs;
-            emit('roundStart');
-            emit('update', getStatus());
-            tick();
+            setTimeout(function () {
+                if (state !== State.RUNNING) return;
+                endTime = Date.now() + remainingMs;
+                emit('update', getStatus());
+                tick();
+            }, transitionDelay);
         }
     }
 

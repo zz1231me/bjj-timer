@@ -380,6 +380,14 @@
         Sound.playBell(getSelectedBellType());
     });
 
+    document.querySelectorAll('input[name="bell-type"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            Sound.unlock();
+            Sound.setVolume(parseInt(els.asVolume.value) || 80);
+            Sound.playBell(parseInt(this.value));
+        });
+    });
+
     // ── Close & Stepper buttons ──
     document.querySelectorAll('[data-close]').forEach(function (btn) {
         btn.addEventListener('click', function () { showScreen('dashboard'); });
