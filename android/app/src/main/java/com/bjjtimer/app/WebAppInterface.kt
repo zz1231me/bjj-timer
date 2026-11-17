@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 class WebAppInterface(private val activity: AppCompatActivity) {
 
     private var audioFocusRequest: AudioFocusRequest? = null
+    private var savedMusicVolume: Int = -1
 
     @JavascriptInterface
     fun keepScreenOn(on: Boolean) {
@@ -103,6 +104,10 @@ class WebAppInterface(private val activity: AppCompatActivity) {
     fun requestAudioFocus(): Boolean {
         val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
+        savedMusicVolume = am.getStreamVolume(AudioManager.STREAM_MUSIC)
+        val reduced = Math.max(1, (savedMusicVolume * 0.1).toInt())
+        am.setStreamVolume(AudioManager.STREAM_MUSIC, reduced, 0)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val req = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
                 .setAudioAttributes(
@@ -127,6 +132,11 @@ class WebAppInterface(private val activity: AppCompatActivity) {
     @JavascriptInterface
     fun abandonAudioFocus() {
         val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+        if (savedMusicVolume >= 0) {
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, savedMusicVolume, 0)
+            savedMusicVolume = -1
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioFocusRequest?.let { am.abandonAudioFocusRequest(it) }
