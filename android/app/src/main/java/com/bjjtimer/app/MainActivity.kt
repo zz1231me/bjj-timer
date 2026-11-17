@@ -36,58 +36,63 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        applyFullscreen()
-
         val needsRefresh = shouldRefreshToday()
         val online = isNetworkAvailable()
 
-        webView = WebView(this).apply {
-            settings.javaScriptEnabled = true
-            settings.domStorageEnabled = true
-            settings.mediaPlaybackRequiresUserGesture = false
-            settings.databaseEnabled = true
-            settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+        try {
+            webView = WebView(this).apply {
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                settings.mediaPlaybackRequiresUserGesture = false
+                settings.databaseEnabled = true
+                settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
 
-            settings.cacheMode = when {
-                needsRefresh && online -> WebSettings.LOAD_NO_CACHE
-                online -> WebSettings.LOAD_DEFAULT
-                else -> WebSettings.LOAD_CACHE_ELSE_NETWORK
-            }
-
-            webViewClient = object : WebViewClient() {
-                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                    super.onPageStarted(view, url, favicon)
+                settings.cacheMode = when {
+                    needsRefresh && online -> WebSettings.LOAD_NO_CACHE
+                    online -> WebSettings.LOAD_DEFAULT
+                    else -> WebSettings.LOAD_CACHE_ELSE_NETWORK
                 }
 
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    super.onPageFinished(view, url)
-                    errorRetried = false
-                    if (url != null && url.startsWith(timerUrl)) {
-                        markRefreshedToday()
-                        view?.settings?.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+                webViewClient = object : WebViewClient() {
+                    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                        super.onPageStarted(view, url, favicon)
+                    }
+
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        errorRetried = false
+                        if (url != null && url.startsWith(timerUrl)) {
+                            markRefreshedToday()
+                            view?.settings?.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+                        }
+                    }
+
+                    override fun onReceivedError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        error: WebResourceError?
+                    ) {
+                        super.onReceivedError(view, request, error)
+                        if (request?.isForMainFrame == true && !errorRetried) {
+                            errorRetried = true
+                            view?.settings?.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+                            view?.loadUrl(timerUrl)
+                        }
                     }
                 }
 
-                override fun onReceivedError(
-                    view: WebView?,
-                    request: WebResourceRequest?,
-                    error: WebResourceError?
-                ) {
-                    super.onReceivedError(view, request, error)
-                    if (request?.isForMainFrame == true && !errorRetried) {
-                        errorRetried = true
-                        view?.settings?.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
-                        view?.loadUrl(timerUrl)
-                    }
-                }
+                webChromeClient = WebChromeClient()
+
+                addJavascriptInterface(WebAppInterface(this@MainActivity), "AndroidBridge")
             }
-
-            webChromeClient = WebChromeClient()
-
-            addJavascriptInterface(WebAppInterface(this@MainActivity), "AndroidBridge")
+        } catch (e: Exception) {
+            Toast.makeText(this, "WebView 초기화 실패", Toast.LENGTH_LONG).show()
+            finish()
+            return
         }
 
         setContentView(webView)
+        applyFullscreen()
 
         if (savedInstanceState != null) {
             webView.restoreState(savedInstanceState)
