@@ -314,31 +314,47 @@ html, body {
 .btn-ctrl-primary:active { opacity: 0.85; }
 
 /* ── Timer States ── */
-/* running: yellow */
+/* running: white + yellow stroke */
 .state-running #screen-timer { background: var(--bg); }
-.state-running #countdown { color: var(--yellow); }
+.state-running #countdown {
+    color: #fff;
+    -webkit-text-stroke: 2px var(--yellow);
+    paint-order: stroke fill;
+}
 .state-running #timer-bar-fill,
 .state-running #timer-bar-top-fill { background: var(--yellow); }
 
-/* running bigsec (<=60s): yellow, bigger */
+/* running bigsec (<=60s): white + yellow stroke, bigger */
 .state-bigsec #screen-timer { background: var(--bg); }
-.state-bigsec #countdown { color: var(--yellow); }
+.state-bigsec #countdown {
+    color: #fff;
+    -webkit-text-stroke: 2px var(--yellow);
+    paint-order: stroke fill;
+}
 .state-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
 .state-bigsec #timer-bar-fill,
 .state-bigsec #timer-bar-top-fill { background: var(--yellow); }
 
-/* resting: white text on dark blue bg */
+/* resting: white + blue stroke on dark blue bg */
 .state-resting #screen-timer { background: var(--blue-bg); }
-.state-resting #countdown { color: #fff; }
+.state-resting #countdown {
+    color: #fff;
+    -webkit-text-stroke: 2px var(--blue);
+    paint-order: stroke fill;
+}
 .state-resting #timer-bar-fill,
 .state-resting #timer-bar-top-fill { background: var(--blue); }
 .state-resting .btn-ctrl-primary { background: var(--blue); }
 .state-resting #timer-bar,
 .state-resting #timer-bar-top { background: var(--t4); }
 
-/* resting bigsec (<=60s): white text, bigger */
+/* resting bigsec (<=60s): white + blue stroke, bigger */
 .state-resting-bigsec #screen-timer { background: var(--blue-bg); }
-.state-resting-bigsec #countdown { color: #fff; }
+.state-resting-bigsec #countdown {
+    color: #fff;
+    -webkit-text-stroke: 2px var(--blue);
+    paint-order: stroke fill;
+}
 .state-resting-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
 .state-resting-bigsec #timer-bar-fill,
 .state-resting-bigsec #timer-bar-top-fill { background: var(--blue); }
@@ -346,11 +362,15 @@ html, body {
 .state-resting-bigsec #timer-bar,
 .state-resting-bigsec #timer-bar-top { background: var(--t4); }
 
-/* warning (sparring <=warningSec): white text + red pulse bg */
+/* warning (sparring <=warningSec): white + orange stroke + red pulse bg */
 .state-warning #screen-timer {
     animation: pulse-warn 1s ease-in-out infinite;
 }
-.state-warning #countdown { color: #fff; }
+.state-warning #countdown {
+    color: #fff;
+    -webkit-text-stroke: 2px var(--orange);
+    paint-order: stroke fill;
+}
 .state-warning #cd-sec-line { font-size: min(85vw, 500px); }
 .state-warning #timer-bar-fill,
 .state-warning #timer-bar-top-fill { background: var(--orange); }
