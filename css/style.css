@@ -314,16 +314,25 @@ html, body {
 .btn-ctrl-primary:active { opacity: 0.85; }
 
 /* ── Timer States ── */
-/* running: yellow stroke (default) */
-.state-running #screen-timer { background: var(--bg); }
+/* running: slow red pulse */
+.state-running #screen-timer {
+    animation: pulse-active 3s ease-in-out infinite;
+}
 .state-running #timer-bar-fill,
 .state-running #timer-bar-top-fill { background: var(--yellow); }
 
-/* running bigsec (<=60s): bigger */
-.state-bigsec #screen-timer { background: var(--bg); }
+/* running bigsec (<=60s): slow red pulse, bigger */
+.state-bigsec #screen-timer {
+    animation: pulse-active 3s ease-in-out infinite;
+}
 .state-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
 .state-bigsec #timer-bar-fill,
 .state-bigsec #timer-bar-top-fill { background: var(--yellow); }
+
+@keyframes pulse-active {
+    0%, 100% { background: #120404; }
+    50% { background: var(--bg); }
+}
 
 /* resting: blue stroke on dark blue bg */
 .state-resting #screen-timer { background: var(--blue-bg); }
