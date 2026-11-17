@@ -7,6 +7,7 @@
     var editingPresetId = null;
     var lastTickSec = -1;
     var lastScreenOnState = null;
+    var lastScheduleActive = false;
 
     var screens = {
         dashboard: $('screen-dashboard'),
@@ -72,7 +73,15 @@
 
     function updateKeepScreenOn() {
         var timerOn = screens.timer.classList.contains('active');
-        var shouldBeOn = timerOn || isScheduleActive();
+        var scheduleNow = isScheduleActive();
+        var shouldBeOn = timerOn || scheduleNow;
+
+        if (lastScheduleActive && !scheduleNow && !timerOn) {
+            Bridge.screenOff();
+        }
+
+        lastScheduleActive = scheduleNow;
+
         if (shouldBeOn !== lastScreenOnState) {
             lastScreenOnState = shouldBeOn;
             Bridge.keepScreenOn(shouldBeOn);

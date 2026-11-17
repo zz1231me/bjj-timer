@@ -148,6 +148,12 @@ class MainActivity : AppCompatActivity() {
         webView.onResume()
         applyFullscreen()
 
+        val params = window.attributes
+        if (params.screenBrightness == 0f) {
+            params.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+            window.attributes = params
+        }
+
         if (shouldRefreshToday() && isNetworkAvailable()) {
             webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
             webView.reload()

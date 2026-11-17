@@ -92,6 +92,12 @@ var Bridge = (function () {
         }
     }
 
+    function screenOff() {
+        if (isAndroidWebView()) {
+            try { window.AndroidBridge.screenOff(); } catch (e) {}
+        }
+    }
+
     function getDeviceVolume() {
         if (isAndroidWebView()) {
             try {
@@ -106,6 +112,7 @@ var Bridge = (function () {
     return {
         isAndroidWebView: isAndroidWebView,
         keepScreenOn: keepScreenOn,
+        screenOff: screenOff,
         setFullscreen: setFullscreen,
         vibrate: vibrate,
         requestAudioFocus: requestAudioFocus,

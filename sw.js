@@ -1,4 +1,4 @@
-var CACHE_NAME = 'bjj-timer-v2';
+var CACHE_NAME = 'bjj-timer-v3';
 var ASSETS = [
     './',
     './index.html',

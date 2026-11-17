@@ -21,9 +21,24 @@ class WebAppInterface(private val activity: AppCompatActivity) {
         activity.runOnUiThread {
             if (on) {
                 activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                val params = activity.window.attributes
+                if (params.screenBrightness == 0f) {
+                    params.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                    activity.window.attributes = params
+                }
             } else {
                 activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
+        }
+    }
+
+    @JavascriptInterface
+    fun screenOff() {
+        activity.runOnUiThread {
+            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            val params = activity.window.attributes
+            params.screenBrightness = 0f
+            activity.window.attributes = params
         }
     }
 
