@@ -481,7 +481,7 @@ html, body {
 
 /* ── Bell Selector ── */
 .bell-selector {
-    display: flex; gap: 8px; padding: 6px 0 10px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 6px 0 10px;
 }
 .bell-opt {
     flex: 1; cursor: pointer;
