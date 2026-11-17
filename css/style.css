@@ -101,30 +101,52 @@ html, body {
 .preset-card {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 0;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 16px;
+    padding: 18px 14px 18px 0;
     cursor: pointer;
     transition: background 0.12s, border-color 0.12s;
+    overflow: hidden;
 }
 .preset-card:active { background: var(--card-hover); border-color: var(--t3); }
 
-.preset-icon {
-    width: 44px; height: 44px;
-    border-radius: 10px;
+.preset-accent {
+    width: 4px;
+    align-self: stretch;
     background: var(--yellow);
-    display: flex; align-items: center; justify-content: center;
+    border-radius: 0 2px 2px 0;
     flex-shrink: 0;
-    color: var(--bg);
-    font-size: 1rem;
-    font-weight: 800;
+    margin-right: 16px;
 }
 
 .preset-info { flex: 1; min-width: 0; }
-.preset-name { font-size: 0.95rem; font-weight: 800; color: var(--white); }
-.preset-detail { font-size: 0.72rem; font-weight: 700; color: var(--t2); margin-top: 4px; }
+.preset-name {
+    font-size: 1rem; font-weight: 800; color: var(--white);
+    margin-bottom: 8px;
+}
+
+.preset-tags { display: flex; gap: 8px; }
+
+.preset-tag {
+    font-size: 0.7rem; font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.02em;
+}
+
+.tag-round {
+    background: var(--yellow-bg);
+    color: var(--yellow);
+    border: 1px solid rgba(255, 214, 0, 0.15);
+}
+
+.tag-rest {
+    background: rgba(66, 165, 245, 0.08);
+    color: var(--blue);
+    border: 1px solid rgba(66, 165, 245, 0.15);
+}
 
 .preset-edit-btn {
     width: 36px; height: 36px;

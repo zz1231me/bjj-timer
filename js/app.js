@@ -94,30 +94,42 @@
             var card = document.createElement('div');
             card.className = 'preset-card';
 
-            var icon = document.createElement('div');
-            icon.className = 'preset-icon';
-            icon.textContent = '▶';
+            var accent = document.createElement('div');
+            accent.className = 'preset-accent';
 
             var info = document.createElement('div');
             info.className = 'preset-info';
+
             var nm = document.createElement('div');
             nm.className = 'preset-name';
             nm.textContent = p.name;
-            var dt = document.createElement('div');
-            dt.className = 'preset-detail';
-            dt.textContent = Settings.formatPresetDetail(p);
+
+            var tags = document.createElement('div');
+            tags.className = 'preset-tags';
+
+            var roundMs = Settings.getRoundMs(p);
+            var restMs = Settings.getRestMs(p);
+            var roundLabel = document.createElement('span');
+            roundLabel.className = 'preset-tag tag-round';
+            roundLabel.textContent = formatTagTime(roundMs);
+            var restLabel = document.createElement('span');
+            restLabel.className = 'preset-tag tag-rest';
+            restLabel.textContent = formatTagTime(restMs);
+
+            tags.appendChild(roundLabel);
+            tags.appendChild(restLabel);
             info.appendChild(nm);
-            info.appendChild(dt);
+            info.appendChild(tags);
 
             var editBtn = document.createElement('button');
             editBtn.className = 'preset-edit-btn';
-            editBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+            editBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>';
             editBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 openPresetEdit(p);
             });
 
-            card.appendChild(icon);
+            card.appendChild(accent);
             card.appendChild(info);
             card.appendChild(editBtn);
             card.addEventListener('click', function () {
@@ -128,6 +140,15 @@
         });
     }
 
+    function formatTagTime(ms) {
+        var sec = Math.round(ms / 1000);
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        if (m > 0 && s > 0) return m + '분 ' + s + '초';
+        if (m > 0) return m + '분';
+        return s + '초';
+    }
+
     // ── Timer ──
     function startTimer(preset) {
         els.timerPresetName.textContent = preset.name;
@@ -135,6 +156,7 @@
         Timer.configure(preset);
         showScreen('timer');
         Bridge.keepScreenOn(true);
+        Sound.startKeepAlive();
     }
 
     function formatTime(ms) {
@@ -222,6 +244,7 @@
         Timer.reset();
         lastTickSec = -1;
         Bridge.keepScreenOn(false);
+        Sound.stopKeepAlive();
         app.className = '';
         showScreen('dashboard');
     });

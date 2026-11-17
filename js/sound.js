@@ -171,12 +171,41 @@ var Sound = (function () {
         osc.stop(now + 0.07);
     }
 
+    // ── 블루투스 오디오 keep-alive ──
+    // BT 스피커가 무음 시 연결 끊기 방지 → 첫 소리 잘림 방지
+    var keepAliveId = null;
+
+    function startKeepAlive() {
+        if (keepAliveId) return;
+        keepAliveId = setInterval(function () {
+            try {
+                var c = getCtx();
+                var osc = c.createOscillator();
+                var g = c.createGain();
+                g.gain.value = 0.001;
+                osc.connect(g);
+                g.connect(c.destination);
+                osc.start();
+                osc.stop(c.currentTime + 0.02);
+            } catch (e) {}
+        }, 4000);
+    }
+
+    function stopKeepAlive() {
+        if (keepAliveId) {
+            clearInterval(keepAliveId);
+            keepAliveId = null;
+        }
+    }
+
     return {
         unlock: unlock,
         setVolume: setVolume,
         playBell: playBell,
         playRoundStart: playRoundStart,
         playRoundEnd: playRoundEnd,
-        playCountTick: playCountTick
+        playCountTick: playCountTick,
+        startKeepAlive: startKeepAlive,
+        stopKeepAlive: stopKeepAlive
     };
 })();
