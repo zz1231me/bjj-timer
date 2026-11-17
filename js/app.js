@@ -6,6 +6,7 @@
     var appSettings = Settings.loadAppSettings();
     var editingPresetId = null;
     var lastTickSec = -1;
+    var lastScreenOnState = null;
 
     var screens = {
         dashboard: $('screen-dashboard'),
@@ -57,6 +58,27 @@
         screens[name].classList.add('active');
     }
 
+    // ── Schedule / Screen ──
+    function isScheduleActive() {
+        if (!appSettings.scheduleEnabled) return false;
+        var now = new Date();
+        var cur = now.getHours() * 60 + now.getMinutes();
+        var sp = appSettings.scheduleStart.split(':');
+        var ep = appSettings.scheduleEnd.split(':');
+        var sm = parseInt(sp[0]) * 60 + parseInt(sp[1]);
+        var em = parseInt(ep[0]) * 60 + parseInt(ep[1]);
+        return sm <= em ? (cur >= sm && cur < em) : (cur >= sm || cur < em);
+    }
+
+    function updateKeepScreenOn() {
+        var timerOn = screens.timer.classList.contains('active');
+        var shouldBeOn = timerOn || isScheduleActive();
+        if (shouldBeOn !== lastScreenOnState) {
+            lastScreenOnState = shouldBeOn;
+            Bridge.keepScreenOn(shouldBeOn);
+        }
+    }
+
     // ── Clock ──
     function updateClock() {
         var now = new Date();
@@ -73,18 +95,15 @@
 
         if (appSettings.scheduleEnabled) {
             els.scheduleBadge.classList.remove('hidden');
-            var cur = now.getHours() * 60 + now.getMinutes();
-            var sp = appSettings.scheduleStart.split(':');
-            var ep = appSettings.scheduleEnd.split(':');
-            var sm = parseInt(sp[0]) * 60 + parseInt(sp[1]);
-            var em = parseInt(ep[0]) * 60 + parseInt(ep[1]);
-            var active = sm <= em ? (cur >= sm && cur < em) : (cur >= sm || cur < em);
+            var active = isScheduleActive();
             els.scheduleText.textContent =
                 appSettings.scheduleStart + ' ~ ' + appSettings.scheduleEnd +
                 (active ? '  운영중' : '  대기중');
         } else {
             els.scheduleBadge.classList.add('hidden');
         }
+
+        updateKeepScreenOn();
     }
 
     // ── Presets ──
@@ -104,26 +123,30 @@
             nm.className = 'preset-name';
             nm.textContent = p.name;
 
-            var tags = document.createElement('div');
-            tags.className = 'preset-tags';
+            var times = document.createElement('div');
+            times.className = 'preset-times';
 
             var roundMs = Settings.getRoundMs(p);
             var restMs = Settings.getRestMs(p);
             var roundLabel = document.createElement('span');
-            roundLabel.className = 'preset-tag tag-round';
+            roundLabel.className = 'preset-time preset-time-round';
             roundLabel.textContent = formatTagTime(roundMs);
+            var sep = document.createElement('span');
+            sep.className = 'preset-time-sep';
+            sep.textContent = '/';
             var restLabel = document.createElement('span');
-            restLabel.className = 'preset-tag tag-rest';
+            restLabel.className = 'preset-time preset-time-rest';
             restLabel.textContent = formatTagTime(restMs);
 
-            tags.appendChild(roundLabel);
-            tags.appendChild(restLabel);
+            times.appendChild(roundLabel);
+            times.appendChild(sep);
+            times.appendChild(restLabel);
             info.appendChild(nm);
-            info.appendChild(tags);
+            info.appendChild(times);
 
             var editBtn = document.createElement('button');
             editBtn.className = 'preset-edit-btn';
-            editBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>';
+            editBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>';
             editBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 openPresetEdit(p);
@@ -155,7 +178,7 @@
         lastTickSec = -1;
         Timer.configure(preset);
         showScreen('timer');
-        Bridge.keepScreenOn(true);
+        updateKeepScreenOn();
         Sound.startKeepAlive();
     }
 
@@ -243,10 +266,10 @@
     els.btnBack.addEventListener('click', function () {
         Timer.reset();
         lastTickSec = -1;
-        Bridge.keepScreenOn(false);
         Sound.stopKeepAlive();
         app.className = '';
         showScreen('dashboard');
+        updateKeepScreenOn();
     });
 
     // ── Preset Edit ──
@@ -278,11 +301,14 @@
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
     els.btnSavePreset.addEventListener('click', function () {
+        var roundMin = clamp(parseInt(els.peRoundMin.value) || 0, 0, 99);
+        var roundSec = clamp(parseInt(els.peRoundSec.value) || 0, 0, 59);
+        if (roundMin === 0 && roundSec === 0) { roundSec = 10; }
         var p = {
             id: editingPresetId || Settings.generateId(),
             name: els.peName.value.trim() || '프리셋',
-            roundMin: clamp(parseInt(els.peRoundMin.value) || 0, 0, 99),
-            roundSec: clamp(parseInt(els.peRoundSec.value) || 0, 0, 59),
+            roundMin: roundMin,
+            roundSec: roundSec,
             restMin: clamp(parseInt(els.peRestMin.value) || 0, 0, 99),
             restSec: clamp(parseInt(els.peRestSec.value) || 0, 0, 59),
             warningSec: clamp(parseInt(els.peWarning.value) || 0, 0, 60)

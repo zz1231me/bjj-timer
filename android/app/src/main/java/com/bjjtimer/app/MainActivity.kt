@@ -30,11 +30,12 @@ class MainActivity : AppCompatActivity() {
     private val prefsName = "bjj_timer_prefs"
     private val keyLastRefresh = "last_refresh_date"
 
+    private var errorRetried = false
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         applyFullscreen()
 
         val needsRefresh = shouldRefreshToday()
@@ -60,6 +61,7 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
+                    errorRetried = false
                     if (url != null && url.startsWith(timerUrl)) {
                         markRefreshedToday()
                         view?.settings?.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
@@ -72,7 +74,8 @@ class MainActivity : AppCompatActivity() {
                     error: WebResourceError?
                 ) {
                     super.onReceivedError(view, request, error)
-                    if (request?.isForMainFrame == true) {
+                    if (request?.isForMainFrame == true && !errorRetried) {
+                        errorRetried = true
                         view?.settings?.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
                         view?.loadUrl(timerUrl)
                     }

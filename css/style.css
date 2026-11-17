@@ -96,7 +96,7 @@ html, body {
 }
 
 /* ── Preset Cards ── */
-#preset-list { display: flex; flex-direction: column; gap: 10px; }
+#preset-list { display: flex; flex-direction: column; gap: 12px; }
 
 .preset-card {
     display: flex;
@@ -105,7 +105,8 @@ html, body {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 18px 14px 18px 0;
+    padding: 0 16px 0 0;
+    min-height: 80px;
     cursor: pointer;
     transition: background 0.12s, border-color 0.12s;
     overflow: hidden;
@@ -113,46 +114,43 @@ html, body {
 .preset-card:active { background: var(--card-hover); border-color: var(--t3); }
 
 .preset-accent {
-    width: 4px;
+    width: 5px;
     align-self: stretch;
     background: var(--yellow);
     border-radius: 0 2px 2px 0;
     flex-shrink: 0;
-    margin-right: 16px;
+    margin-right: 18px;
 }
 
-.preset-info { flex: 1; min-width: 0; }
+.preset-info {
+    flex: 1; min-width: 0;
+    display: flex; align-items: center;
+    gap: 14px;
+}
 .preset-name {
-    font-size: 1rem; font-weight: 800; color: var(--white);
-    margin-bottom: 8px;
+    font-size: 1.2rem; font-weight: 800; color: var(--white);
+    white-space: nowrap;
 }
 
-.preset-tags { display: flex; gap: 8px; }
-
-.preset-tag {
-    font-size: 0.7rem; font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 6px;
-    letter-spacing: 0.02em;
+.preset-times {
+    display: flex; align-items: center; gap: 8px;
+    margin-left: auto; flex-shrink: 0;
 }
 
-.tag-round {
-    background: var(--yellow-bg);
-    color: var(--yellow);
-    border: 1px solid rgba(255, 214, 0, 0.15);
+.preset-time {
+    font-size: 1.05rem; font-weight: 800;
+    white-space: nowrap;
 }
-
-.tag-rest {
-    background: rgba(66, 165, 245, 0.08);
-    color: var(--blue);
-    border: 1px solid rgba(66, 165, 245, 0.15);
-}
+.preset-time-round { color: var(--yellow); }
+.preset-time-sep { color: var(--t3); font-size: 0.85rem; }
+.preset-time-rest { color: var(--blue); }
 
 .preset-edit-btn {
-    width: 36px; height: 36px;
+    width: 48px; height: 48px;
     display: flex; align-items: center; justify-content: center;
     color: var(--t3); background: none; border: none;
     cursor: pointer; flex-shrink: 0; border-radius: 8px;
+    margin-left: 6px;
 }
 .preset-edit-btn:active { background: var(--t5); }
 
