@@ -174,5 +174,10 @@
     <script src="js/bridge.js"></script>
     <script src="js/timer.js"></script>
     <script src="js/app.js"></script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(function () {});
+    }
+    </script>
 </body>
 </html>

@@ -1,6 +1,8 @@
 package com.bjjtimer.app
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Build
 import android.os.VibrationEffect
@@ -11,6 +13,8 @@ import android.webkit.JavascriptInterface
 import androidx.appcompat.app.AppCompatActivity
 
 class WebAppInterface(private val activity: AppCompatActivity) {
+
+    private var audioFocusRequest: AudioFocusRequest? = null
 
     @JavascriptInterface
     fun keepScreenOn(on: Boolean) {
@@ -24,31 +28,97 @@ class WebAppInterface(private val activity: AppCompatActivity) {
     }
 
     @JavascriptInterface
-    fun setFullscreen(on: Boolean) {
+    fun setFullscreen(@Suppress("UNUSED_PARAMETER") on: Boolean) {
         activity.runOnUiThread {
-            if (on) {
-                (activity as? MainActivity)?.run {
-                    onWindowFocusChanged(true)
-                }
-            }
+            (activity as? MainActivity)?.applyFullscreen()
         }
     }
 
     @JavascriptInterface
     fun vibrate(ms: Long) {
-        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        vibrateOnce(ms)
+    }
+
+    @JavascriptInterface
+    fun vibratePattern(pattern: String) {
+        try {
+            val parts = pattern.split(",").map { it.trim().toLong() }
+            if (parts.isEmpty()) return
+            val vibrator = getVibrator()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(
+                    VibrationEffect.createWaveform(
+                        longArrayOf(0, parts[0], parts.getOrElse(1) { 100 }, parts.getOrElse(2) { parts[0] }),
+                        -1
+                    )
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(
+                    longArrayOf(0, parts[0], parts.getOrElse(1) { 100 }, parts.getOrElse(2) { parts[0] }),
+                    -1
+                )
+            }
+        } catch (_: Exception) {
+            vibrateOnce(200)
+        }
+    }
+
+    private fun vibrateOnce(ms: Long) {
+        val vibrator = getVibrator()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(ms)
+        }
+    }
+
+    private fun getVibrator(): Vibrator {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val mgr = activity.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             mgr.defaultVibrator
         } else {
             @Suppress("DEPRECATION")
             activity.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
+    }
+
+    @JavascriptInterface
+    fun requestAudioFocus(): Boolean {
+        val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE))
+            val req = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                .build()
+            audioFocusRequest = req
+            return am.requestAudioFocus(req) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
         } else {
             @Suppress("DEPRECATION")
-            vibrator.vibrate(ms)
+            return am.requestAudioFocus(
+                null,
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+            ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        }
+    }
+
+    @JavascriptInterface
+    fun abandonAudioFocus() {
+        val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            audioFocusRequest?.let { am.abandonAudioFocusRequest(it) }
+            audioFocusRequest = null
+        } else {
+            @Suppress("DEPRECATION")
+            am.abandonAudioFocus(null)
         }
     }
 

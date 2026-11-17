@@ -324,24 +324,27 @@
         els.asStart.value = appSettings.scheduleStart;
         els.asEnd.value = appSettings.scheduleEnd;
         els.asSound.checked = appSettings.soundOn;
-        els.asVolume.value = appSettings.volume;
+        var devVol = Bridge.getDeviceVolume();
+        els.asVolume.value = devVol >= 0 ? devVol : appSettings.volume;
         els.asVibrate.checked = appSettings.vibrateOn;
         setSelectedBellType(appSettings.bellType);
         showScreen('settings');
     });
 
     els.btnSaveAppSettings.addEventListener('click', function () {
+        var vol = parseInt(els.asVolume.value) || 80;
         appSettings = {
             scheduleEnabled: els.asEnabled.checked,
             scheduleStart: els.asStart.value || '18:00',
             scheduleEnd: els.asEnd.value || '22:00',
             soundOn: els.asSound.checked,
-            volume: parseInt(els.asVolume.value) || 80,
+            volume: vol,
             vibrateOn: els.asVibrate.checked,
             bellType: getSelectedBellType()
         };
         Settings.saveAppSettings(appSettings);
-        Sound.setVolume(appSettings.volume);
+        Sound.setVolume(vol);
+        Bridge.setDeviceVolume(vol);
         showScreen('dashboard');
     });
 

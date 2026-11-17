@@ -1,6 +1,10 @@
 package com.bjjtimer.app
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -8,41 +12,93 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private val timerUrl = "https://zz1231me.github.io/bjj-timer/"
+    private val prefsName = "bjj_timer_prefs"
+    private val keyLastRefresh = "last_refresh_date"
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        enableFullscreen()
+        applyFullscreen()
+
+        val needsRefresh = shouldRefreshToday()
+        val online = isNetworkAvailable()
 
         webView = WebView(this).apply {
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             settings.mediaPlaybackRequiresUserGesture = false
-            settings.cacheMode = WebSettings.LOAD_DEFAULT
             settings.databaseEnabled = true
+            settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
 
-            webViewClient = WebViewClient()
+            settings.cacheMode = when {
+                needsRefresh && online -> WebSettings.LOAD_NO_CACHE
+                online -> WebSettings.LOAD_DEFAULT
+                else -> WebSettings.LOAD_CACHE_ELSE_NETWORK
+            }
+
+            webViewClient = object : WebViewClient() {
+                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                    super.onPageStarted(view, url, favicon)
+                }
+
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    if (url != null && url.startsWith(timerUrl)) {
+                        markRefreshedToday()
+                        view?.settings?.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+                    }
+                }
+
+                override fun onReceivedError(
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    error: WebResourceError?
+                ) {
+                    super.onReceivedError(view, request, error)
+                    if (request?.isForMainFrame == true) {
+                        view?.settings?.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+                        view?.loadUrl(timerUrl)
+                    }
+                }
+            }
+
             webChromeClient = WebChromeClient()
 
             addJavascriptInterface(WebAppInterface(this@MainActivity), "AndroidBridge")
-            loadUrl(timerUrl)
         }
 
         setContentView(webView)
+
+        if (savedInstanceState != null) {
+            webView.restoreState(savedInstanceState)
+        } else {
+            webView.loadUrl(timerUrl)
+        }
     }
 
-    private fun enableFullscreen() {
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        webView.saveState(outState)
+    }
+
+    fun applyFullscreen() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.let {
                 it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
@@ -61,9 +117,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        webView.onResume()
+        applyFullscreen()
+
+        if (shouldRefreshToday() && isNetworkAvailable()) {
+            webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
+            webView.reload()
+        }
+    }
+
+    override fun onPause() {
+        webView.onPause()
+        super.onPause()
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) enableFullscreen()
+        if (hasFocus) applyFullscreen()
     }
 
     @Deprecated("Use OnBackPressedCallback instead")
@@ -77,7 +149,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        webView.removeJavascriptInterface("AndroidBridge")
         webView.destroy()
         super.onDestroy()
+    }
+
+    private fun todayString(): String {
+        return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+    }
+
+    private fun shouldRefreshToday(): Boolean {
+        val prefs = getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+        val last = prefs.getString(keyLastRefresh, "") ?: ""
+        return last != todayString()
+    }
+
+    private fun markRefreshedToday() {
+        getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+            .edit()
+            .putString(keyLastRefresh, todayString())
+            .apply()
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val net = cm.activeNetwork ?: return false
+        val caps = cm.getNetworkCapabilities(net) ?: return false
+        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }

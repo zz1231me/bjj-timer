@@ -51,11 +51,28 @@ var Bridge = (function () {
 
     function vibrate(ms) {
         if (isAndroidWebView()) {
-            window.AndroidBridge.vibrate(ms);
+            if (Array.isArray(ms)) {
+                window.AndroidBridge.vibratePattern(ms.join(','));
+            } else {
+                window.AndroidBridge.vibrate(ms);
+            }
             return;
         }
         if (navigator.vibrate) {
             navigator.vibrate(ms);
+        }
+    }
+
+    function requestAudioFocus() {
+        if (isAndroidWebView()) {
+            try { return window.AndroidBridge.requestAudioFocus(); } catch (e) {}
+        }
+        return false;
+    }
+
+    function abandonAudioFocus() {
+        if (isAndroidWebView()) {
+            try { window.AndroidBridge.abandonAudioFocus(); } catch (e) {}
         }
     }
 
@@ -65,10 +82,35 @@ var Bridge = (function () {
         }
     });
 
+    function setDeviceVolume(percent) {
+        if (isAndroidWebView()) {
+            try {
+                var max = window.AndroidBridge.getMaxVolume();
+                var level = Math.round(max * percent / 100);
+                window.AndroidBridge.setVolume(level);
+            } catch (e) {}
+        }
+    }
+
+    function getDeviceVolume() {
+        if (isAndroidWebView()) {
+            try {
+                var cur = window.AndroidBridge.getVolume();
+                var max = window.AndroidBridge.getMaxVolume();
+                return max > 0 ? Math.round(cur * 100 / max) : 80;
+            } catch (e) {}
+        }
+        return -1;
+    }
+
     return {
         isAndroidWebView: isAndroidWebView,
         keepScreenOn: keepScreenOn,
         setFullscreen: setFullscreen,
-        vibrate: vibrate
+        vibrate: vibrate,
+        requestAudioFocus: requestAudioFocus,
+        abandonAudioFocus: abandonAudioFocus,
+        setDeviceVolume: setDeviceVolume,
+        getDeviceVolume: getDeviceVolume
     };
 })();

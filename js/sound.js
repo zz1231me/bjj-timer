@@ -139,20 +139,30 @@ var Sound = (function () {
 
     var startFns = [null, type1Start, type2Start, type3Start, type4Start];
     var endFns = [null, type1End, type2End, type3End, type4End];
+    var focusTimerId = null;
+
+    function withAudioFocus(fn, durationMs) {
+        Bridge.requestAudioFocus();
+        fn();
+        clearTimeout(focusTimerId);
+        focusTimerId = setTimeout(function () {
+            Bridge.abandonAudioFocus();
+        }, durationMs + 500);
+    }
 
     function playBell(type) {
         var fn = startFns[type || 1];
-        if (fn) fn();
+        if (fn) withAudioFocus(fn, 1000);
     }
 
     function playRoundStart(type) {
         var fn = startFns[type || 1];
-        if (fn) fn();
+        if (fn) withAudioFocus(fn, 1000);
     }
 
     function playRoundEnd(type) {
         var fn = endFns[type || 1];
-        if (fn) fn();
+        if (fn) withAudioFocus(fn, 2500);
     }
 
     function playCountTick() {
