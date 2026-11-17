@@ -220,9 +220,11 @@ html, body {
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.03em;
-    color: var(--yellow);
+    color: #fff;
+    -webkit-text-stroke: 8px var(--yellow);
+    paint-order: stroke fill;
     text-align: center;
-    transition: color 0.5s;
+    transition: color 0.5s, -webkit-text-stroke-color 0.5s;
     width: 100%;
     gap: 0;
 }
@@ -314,47 +316,29 @@ html, body {
 .btn-ctrl-primary:active { opacity: 0.85; }
 
 /* ── Timer States ── */
-/* running: white + yellow stroke */
+/* running: yellow stroke (default) */
 .state-running #screen-timer { background: var(--bg); }
-.state-running #countdown {
-    color: #fff;
-    -webkit-text-stroke: 4px var(--yellow);
-    paint-order: stroke fill;
-}
 .state-running #timer-bar-fill,
 .state-running #timer-bar-top-fill { background: var(--yellow); }
 
-/* running bigsec (<=60s): white + yellow stroke, bigger */
+/* running bigsec (<=60s): bigger */
 .state-bigsec #screen-timer { background: var(--bg); }
-.state-bigsec #countdown {
-    color: #fff;
-    -webkit-text-stroke: 4px var(--yellow);
-    paint-order: stroke fill;
-}
 .state-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
 .state-bigsec #timer-bar-fill,
 .state-bigsec #timer-bar-top-fill { background: var(--yellow); }
 
-/* resting: white + blue stroke on dark blue bg */
+/* resting: blue stroke on dark blue bg */
 .state-resting #screen-timer { background: var(--blue-bg); }
-.state-resting #countdown {
-    color: #fff;
-    -webkit-text-stroke: 4px var(--blue);
-    paint-order: stroke fill;
-}
+.state-resting #countdown { -webkit-text-stroke-color: var(--blue); }
 .state-resting #timer-bar-fill,
 .state-resting #timer-bar-top-fill { background: var(--blue); }
 .state-resting .btn-ctrl-primary { background: var(--blue); }
 .state-resting #timer-bar,
 .state-resting #timer-bar-top { background: var(--t4); }
 
-/* resting bigsec (<=60s): white + blue stroke, bigger */
+/* resting bigsec (<=60s): blue stroke, bigger */
 .state-resting-bigsec #screen-timer { background: var(--blue-bg); }
-.state-resting-bigsec #countdown {
-    color: #fff;
-    -webkit-text-stroke: 4px var(--blue);
-    paint-order: stroke fill;
-}
+.state-resting-bigsec #countdown { -webkit-text-stroke-color: var(--blue); }
 .state-resting-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
 .state-resting-bigsec #timer-bar-fill,
 .state-resting-bigsec #timer-bar-top-fill { background: var(--blue); }
@@ -366,11 +350,7 @@ html, body {
 .state-warning #screen-timer {
     animation: pulse-warn 1s ease-in-out infinite;
 }
-.state-warning #countdown {
-    color: #fff;
-    -webkit-text-stroke: 4px var(--orange);
-    paint-order: stroke fill;
-}
+.state-warning #countdown { -webkit-text-stroke-color: var(--orange); }
 .state-warning #cd-sec-line { font-size: min(85vw, 500px); }
 .state-warning #timer-bar-fill,
 .state-warning #timer-bar-top-fill { background: var(--orange); }
