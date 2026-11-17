@@ -317,7 +317,7 @@ html, body {
     animation: pulse-active 3s ease-in-out infinite;
 }
 .state-running #timer-bar-fill,
-.state-running #timer-bar-top-fill { background: var(--yellow); }
+.state-running #timer-bar-top-fill { background: #e53935; }
 
 /* running bigsec (<=60s): slow red pulse, bigger */
 .state-bigsec #screen-timer {
@@ -325,7 +325,7 @@ html, body {
 }
 .state-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
 .state-bigsec #timer-bar-fill,
-.state-bigsec #timer-bar-top-fill { background: var(--yellow); }
+.state-bigsec #timer-bar-top-fill { background: #e53935; }
 
 @keyframes pulse-active {
     0%, 100% { background: #120404; }
@@ -355,8 +355,8 @@ html, body {
 }
 .state-warning #cd-sec-line { font-size: min(85vw, 500px); }
 .state-warning #timer-bar-fill,
-.state-warning #timer-bar-top-fill { background: var(--orange); }
-.state-warning .btn-ctrl-primary { background: var(--orange); }
+.state-warning #timer-bar-top-fill { background: #e53935; }
+.state-warning .btn-ctrl-primary { background: #e53935; }
 
 @keyframes pulse-warn {
     0%, 100% { background: var(--red-bg); }
