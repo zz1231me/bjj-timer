@@ -45,6 +45,7 @@ var Settings = (function () {
                 for (var k in defaultAppSettings) {
                     merged[k] = saved.hasOwnProperty(k) ? saved[k] : defaultAppSettings[k];
                 }
+                if (merged.bellType < 1 || merged.bellType > 7) merged.bellType = 1;
                 return merged;
             }
         } catch (e) {}

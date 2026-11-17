@@ -68,8 +68,20 @@ var Timer = (function () {
 
     function onPeriodEnd() {
         if (state === State.RUNNING) {
+            var restMs = Settings.getRestMs(preset);
+            if (restMs <= 0) {
+                state = State.RUNNING;
+                remainingMs = Settings.getRoundMs(preset);
+                totalMs = remainingMs;
+                endTime = Date.now() + remainingMs;
+                emit('restStart');
+                emit('roundStart');
+                emit('update', getStatus());
+                tick();
+                return;
+            }
             state = State.RESTING;
-            remainingMs = Settings.getRestMs(preset);
+            remainingMs = restMs;
             totalMs = remainingMs;
             endTime = Date.now() + remainingMs;
             emit('restStart');

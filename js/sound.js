@@ -138,159 +138,63 @@ var Sound = (function () {
     }
 
     // ═══════════════════════════════════
-    // Type 5: 호각 (심판 휘슬)
-    // 날카로운 고음 + 떨림 - 실제 호각 소리
-    // 시합/스파링에서 가장 많이 쓰이는 소리
+    // Type 5: 삐── (긴 단일 비프)
+    // 1000Hz square 길게 - 삐이이이이!
+    // 시작: 삐──!  종료: 삐────────!
     // ═══════════════════════════════════
     function type5Start() {
-        var c = getCtx();
-        var t = c.currentTime;
         var vol = volumeLevel * 0.8;
-        var osc = c.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(2800, t);
-        var lfo = c.createOscillator();
-        lfo.type = 'sine';
-        lfo.frequency.value = 6;
-        var lfoGain = c.createGain();
-        lfoGain.gain.value = 80;
-        lfo.connect(lfoGain);
-        lfoGain.connect(osc.frequency);
-        var g = c.createGain();
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(vol, t + 0.03);
-        g.gain.setValueAtTime(vol, t + 0.8);
-        g.gain.linearRampToValueAtTime(0, t + 1.0);
-        osc.connect(g); g.connect(c.destination);
-        osc.start(t); osc.stop(t + 1.05);
-        lfo.start(t); lfo.stop(t + 1.05);
+        makeTone(1000, 'square', 1.2, vol);
     }
     function type5End() {
-        var c = getCtx();
-        var t = c.currentTime;
         var vol = volumeLevel * 0.8;
-        for (var i = 0; i < 3; i++) {
-            var st = t + i * 0.6;
-            var osc = c.createOscillator();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(2800, st);
-            var lfo = c.createOscillator();
-            lfo.type = 'sine';
-            lfo.frequency.value = 6;
-            var lfoGain = c.createGain();
-            lfoGain.gain.value = 80;
-            lfo.connect(lfoGain);
-            lfoGain.connect(osc.frequency);
-            var g = c.createGain();
-            g.gain.setValueAtTime(0, st);
-            g.gain.linearRampToValueAtTime(vol, st + 0.03);
-            g.gain.setValueAtTime(vol, st + 0.4);
-            g.gain.linearRampToValueAtTime(0, st + 0.5);
-            osc.connect(g); g.connect(c.destination);
-            osc.start(st); osc.stop(st + 0.55);
-            lfo.start(st); lfo.stop(st + 0.55);
-        }
+        makeTone(1000, 'square', 3.0, vol);
     }
 
     // ═══════════════════════════════════
-    // Type 6: 에어혼 (대회용 경적)
-    // 굵고 강한 저음 경적 - 대회/경기장 경적
-    // 멀리서도 확실히 들리는 강한 소리
+    // Type 6: 삐삐빅 (짧은 2연타 + 강조)
+    // 1200Hz square 빠른 패턴 - 삐삐빅!
+    // 시작: 삐빅!  종료: 삐삐빅! 삐삐빅!
     // ═══════════════════════════════════
     function type6Start() {
         var c = getCtx();
         var t = c.currentTime;
-        var vol = volumeLevel * 0.85;
-        var osc1 = c.createOscillator();
-        osc1.type = 'sawtooth';
-        osc1.frequency.value = 180;
-        var osc2 = c.createOscillator();
-        osc2.type = 'sawtooth';
-        osc2.frequency.value = 185;
-        var g = c.createGain();
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(vol, t + 0.05);
-        g.gain.setValueAtTime(vol, t + 0.9);
-        g.gain.linearRampToValueAtTime(0, t + 1.2);
-        osc1.connect(g); osc2.connect(g); g.connect(c.destination);
-        osc1.start(t); osc1.stop(t + 1.25);
-        osc2.start(t); osc2.stop(t + 1.25);
+        var vol = volumeLevel * 0.8;
+        makeTone(1200, 'square', 0.12, vol, t);
+        makeTone(1400, 'square', 0.3, vol, t + 0.2);
     }
     function type6End() {
         var c = getCtx();
         var t = c.currentTime;
-        var vol = volumeLevel * 0.85;
-        var osc1 = c.createOscillator();
-        osc1.type = 'sawtooth';
-        osc1.frequency.value = 180;
-        var osc2 = c.createOscillator();
-        osc2.type = 'sawtooth';
-        osc2.frequency.value = 185;
-        var g = c.createGain();
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(vol, t + 0.05);
-        g.gain.setValueAtTime(vol, t + 2.5);
-        g.gain.linearRampToValueAtTime(0, t + 3.0);
-        osc1.connect(g); osc2.connect(g); g.connect(c.destination);
-        osc1.start(t); osc1.stop(t + 3.05);
-        osc2.start(t); osc2.stop(t + 3.05);
+        var vol = volumeLevel * 0.8;
+        for (var r = 0; r < 2; r++) {
+            var base = t + r * 0.8;
+            makeTone(1200, 'square', 0.1, vol, base);
+            makeTone(1200, 'square', 0.1, vol, base + 0.15);
+            makeTone(1400, 'square', 0.35, vol, base + 0.3);
+        }
     }
 
     // ═══════════════════════════════════
-    // Type 7: 경기벨 (복싱/격투기 링벨)
-    // 금속성 딩딩딩 - 클래식 복싱 링벨
-    // 격투기 경기에서 쓰이는 전통 벨소리
+    // Type 7: 삐빅삐빅 (교대 반복 비프)
+    // 1000-1300Hz square 교대 - 삐빅삐빅!
+    // 시작: 삐빅삐빅!  종료: 삐빅삐빅삐빅!
     // ═══════════════════════════════════
     function type7Start() {
         var c = getCtx();
         var t = c.currentTime;
-        var vol = volumeLevel * 0.75;
-        for (var i = 0; i < 3; i++) {
-            var st = t + i * 0.25;
-            var osc1 = c.createOscillator();
-            osc1.type = 'sine';
-            osc1.frequency.value = 3200;
-            var osc2 = c.createOscillator();
-            osc2.type = 'sine';
-            osc2.frequency.value = 6400;
-            var g1 = c.createGain();
-            g1.gain.setValueAtTime(vol, st);
-            g1.gain.exponentialRampToValueAtTime(vol * 0.1, st + 0.18);
-            g1.gain.exponentialRampToValueAtTime(0.001, st + 0.22);
-            var g2 = c.createGain();
-            g2.gain.setValueAtTime(vol * 0.4, st);
-            g2.gain.exponentialRampToValueAtTime(0.001, st + 0.12);
-            osc1.connect(g1); g1.connect(c.destination);
-            osc2.connect(g2); g2.connect(c.destination);
-            osc1.start(st); osc1.stop(st + 0.25);
-            osc2.start(st); osc2.stop(st + 0.15);
-        }
+        var vol = volumeLevel * 0.8;
+        makeTone(1000, 'square', 0.15, vol, t);
+        makeTone(1300, 'square', 0.15, vol, t + 0.2);
+        makeTone(1000, 'square', 0.15, vol, t + 0.4);
+        makeTone(1300, 'square', 0.15, vol, t + 0.6);
     }
     function type7End() {
         var c = getCtx();
         var t = c.currentTime;
-        var vol = volumeLevel * 0.75;
-        for (var r = 0; r < 2; r++) {
-            for (var i = 0; i < 3; i++) {
-                var st = t + r * 0.9 + i * 0.25;
-                var osc1 = c.createOscillator();
-                osc1.type = 'sine';
-                osc1.frequency.value = 3200;
-                var osc2 = c.createOscillator();
-                osc2.type = 'sine';
-                osc2.frequency.value = 6400;
-                var g1 = c.createGain();
-                g1.gain.setValueAtTime(vol, st);
-                g1.gain.exponentialRampToValueAtTime(vol * 0.1, st + 0.18);
-                g1.gain.exponentialRampToValueAtTime(0.001, st + 0.22);
-                var g2 = c.createGain();
-                g2.gain.setValueAtTime(vol * 0.4, st);
-                g2.gain.exponentialRampToValueAtTime(0.001, st + 0.12);
-                osc1.connect(g1); g1.connect(c.destination);
-                osc2.connect(g2); g2.connect(c.destination);
-                osc1.start(st); osc1.stop(st + 0.25);
-                osc2.start(st); osc2.stop(st + 0.15);
-            }
+        var vol = volumeLevel * 0.8;
+        for (var i = 0; i < 6; i++) {
+            makeTone(i % 2 === 0 ? 1000 : 1300, 'square', 0.15, vol, t + i * 0.2);
         }
     }
 
