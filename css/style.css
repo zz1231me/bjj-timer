@@ -318,7 +318,7 @@ html, body {
 .state-running #screen-timer { background: var(--bg); }
 .state-running #countdown {
     color: #fff;
-    -webkit-text-stroke: 2px var(--yellow);
+    -webkit-text-stroke: 4px var(--yellow);
     paint-order: stroke fill;
 }
 .state-running #timer-bar-fill,
@@ -328,7 +328,7 @@ html, body {
 .state-bigsec #screen-timer { background: var(--bg); }
 .state-bigsec #countdown {
     color: #fff;
-    -webkit-text-stroke: 2px var(--yellow);
+    -webkit-text-stroke: 4px var(--yellow);
     paint-order: stroke fill;
 }
 .state-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
@@ -339,7 +339,7 @@ html, body {
 .state-resting #screen-timer { background: var(--blue-bg); }
 .state-resting #countdown {
     color: #fff;
-    -webkit-text-stroke: 2px var(--blue);
+    -webkit-text-stroke: 4px var(--blue);
     paint-order: stroke fill;
 }
 .state-resting #timer-bar-fill,
@@ -352,7 +352,7 @@ html, body {
 .state-resting-bigsec #screen-timer { background: var(--blue-bg); }
 .state-resting-bigsec #countdown {
     color: #fff;
-    -webkit-text-stroke: 2px var(--blue);
+    -webkit-text-stroke: 4px var(--blue);
     paint-order: stroke fill;
 }
 .state-resting-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
@@ -368,7 +368,7 @@ html, body {
 }
 .state-warning #countdown {
     color: #fff;
-    -webkit-text-stroke: 2px var(--orange);
+    -webkit-text-stroke: 4px var(--orange);
     paint-order: stroke fill;
 }
 .state-warning #cd-sec-line { font-size: min(85vw, 500px); }
