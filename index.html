@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
     <div id="app">
@@ -79,28 +79,18 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">스파링 시간</label>
-                    <div class="time-picker">
-                        <div class="time-unit">
-                            <input type="number" id="pe-round-min" min="0" max="99" value="5" class="time-num">
-                            <span class="time-suffix">분</span>
-                        </div>
-                        <div class="time-unit">
-                            <input type="number" id="pe-round-sec" min="0" max="59" value="0" class="time-num">
-                            <span class="time-suffix">초</span>
-                        </div>
+                    <div class="time-stepper">
+                        <button class="stepper-btn ts-btn" data-ts="round" data-delta="-30">&minus;30</button>
+                        <span id="pe-round-display" class="ts-display">5:00</span>
+                        <button class="stepper-btn ts-btn" data-ts="round" data-delta="30">+30</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">휴식 시간</label>
-                    <div class="time-picker">
-                        <div class="time-unit">
-                            <input type="number" id="pe-rest-min" min="0" max="99" value="1" class="time-num">
-                            <span class="time-suffix">분</span>
-                        </div>
-                        <div class="time-unit">
-                            <input type="number" id="pe-rest-sec" min="0" max="59" value="0" class="time-num">
-                            <span class="time-suffix">초</span>
-                        </div>
+                    <div class="time-stepper">
+                        <button class="stepper-btn ts-btn" data-ts="rest" data-delta="-30">&minus;30</button>
+                        <span id="pe-rest-display" class="ts-display">1:00</span>
+                        <button class="stepper-btn ts-btn" data-ts="rest" data-delta="30">+30</button>
                     </div>
                 </div>
                 <div class="form-group">

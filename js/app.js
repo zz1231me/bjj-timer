@@ -37,10 +37,8 @@
         btnStart: $('btn-start'),
         presetEditTitle: $('preset-edit-title'),
         peName: $('pe-name'),
-        peRoundMin: $('pe-round-min'),
-        peRoundSec: $('pe-round-sec'),
-        peRestMin: $('pe-rest-min'),
-        peRestSec: $('pe-rest-sec'),
+        peRoundDisplay: $('pe-round-display'),
+        peRestDisplay: $('pe-rest-display'),
         peWarning: $('pe-warning'),
         btnDeletePreset: $('btn-delete-preset'),
         btnSavePreset: $('btn-save-preset'),
@@ -283,44 +281,66 @@
     });
 
     // ── Preset Edit ──
+    var editRoundSec = 300;
+    var editRestSec = 60;
+
+    function formatTimeStepper(totalSec) {
+        var m = Math.floor(totalSec / 60);
+        var s = totalSec % 60;
+        return m + ':' + String(s).padStart(2, '0');
+    }
+
+    function updateTimeDisplays() {
+        els.peRoundDisplay.textContent = formatTimeStepper(editRoundSec);
+        els.peRestDisplay.textContent = formatTimeStepper(editRestSec);
+    }
+
     function openPresetEdit(preset) {
         if (preset) {
             editingPresetId = preset.id;
             els.presetEditTitle.textContent = '프리셋 수정';
             els.peName.value = preset.name;
-            els.peRoundMin.value = preset.roundMin;
-            els.peRoundSec.value = preset.roundSec;
-            els.peRestMin.value = preset.restMin;
-            els.peRestSec.value = preset.restSec;
+            editRoundSec = preset.roundMin * 60 + preset.roundSec;
+            editRestSec = preset.restMin * 60 + preset.restSec;
             els.peWarning.value = preset.warningSec;
             els.btnDeletePreset.classList.remove('hidden');
         } else {
             editingPresetId = null;
             els.presetEditTitle.textContent = '프리셋 추가';
             els.peName.value = '';
-            els.peRoundMin.value = 5;
-            els.peRoundSec.value = 0;
-            els.peRestMin.value = 1;
-            els.peRestSec.value = 0;
+            editRoundSec = 300;
+            editRestSec = 60;
             els.peWarning.value = 10;
             els.btnDeletePreset.classList.add('hidden');
         }
+        updateTimeDisplays();
         showScreen('presetEdit');
     }
+
+    document.querySelectorAll('.ts-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var target = btn.dataset.ts;
+            var delta = parseInt(btn.dataset.delta);
+            if (target === 'round') {
+                editRoundSec = Math.max(10, Math.min(5940, editRoundSec + delta));
+            } else {
+                editRestSec = Math.max(0, Math.min(5940, editRestSec + delta));
+            }
+            updateTimeDisplays();
+        });
+    });
 
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
     els.btnSavePreset.addEventListener('click', function () {
-        var roundMin = clamp(parseInt(els.peRoundMin.value) || 0, 0, 99);
-        var roundSec = clamp(parseInt(els.peRoundSec.value) || 0, 0, 59);
-        if (roundMin === 0 && roundSec === 0) { roundSec = 10; }
+        if (editRoundSec < 10) editRoundSec = 10;
         var p = {
             id: editingPresetId || Settings.generateId(),
             name: els.peName.value.trim() || '프리셋',
-            roundMin: roundMin,
-            roundSec: roundSec,
-            restMin: clamp(parseInt(els.peRestMin.value) || 0, 0, 99),
-            restSec: clamp(parseInt(els.peRestSec.value) || 0, 0, 59),
+            roundMin: Math.floor(editRoundSec / 60),
+            roundSec: editRoundSec % 60,
+            restMin: Math.floor(editRestSec / 60),
+            restSec: editRestSec % 60,
             warningSec: clamp(parseInt(els.peWarning.value) || 0, 0, 60)
         };
         if (editingPresetId) {
@@ -360,8 +380,7 @@
         els.asStart.value = appSettings.scheduleStart;
         els.asEnd.value = appSettings.scheduleEnd;
         els.asSound.checked = appSettings.soundOn;
-        var devVol = Bridge.getDeviceVolume();
-        els.asVolume.value = devVol >= 0 ? devVol : appSettings.volume;
+        els.asVolume.value = appSettings.volume;
         els.asMusicVolume.value = appSettings.musicVolume;
         els.asVibrate.checked = appSettings.vibrateOn;
         setSelectedBellType(appSettings.bellType);
@@ -384,7 +403,6 @@
         };
         Settings.saveAppSettings(appSettings);
         Sound.setVolume(vol);
-        Bridge.setDeviceVolume(vol);
         Bridge.setMusicVolume(musicVol);
         showScreen('dashboard');
     });
@@ -410,7 +428,9 @@
 
     document.querySelectorAll('.stepper-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
+            if (!btn.dataset.target) return;
             var t = $(btn.dataset.target);
+            if (!t) return;
             var d = parseInt(btn.dataset.delta);
             t.value = clamp((parseInt(t.value) || 0) + d, parseInt(t.min) || 0, parseInt(t.max) || 99);
         });
