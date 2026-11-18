@@ -244,7 +244,7 @@ html, body {
 
 #countdown.two-line #cd-min-line {
     display: block;
-    font-size: min(36vw, 220px);
+    font-size: min(44vw, 260px);
     margin-bottom: min(1vw, 6px);
 }
 
