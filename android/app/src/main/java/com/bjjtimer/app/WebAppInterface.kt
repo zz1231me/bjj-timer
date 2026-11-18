@@ -115,17 +115,23 @@ class WebAppInterface(private val activity: AppCompatActivity) {
     fun applyMusicVolume() {
         val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val prefs = activity.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val maxVol = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         if (originalMusicVolume < 0) {
             val saved = prefs.getInt(KEY_ORIGINAL_VOLUME, -1)
-            if (saved >= 0) {
-                originalMusicVolume = saved
+            if (saved > 0) {
+                originalMusicVolume = saved.coerceAtMost(maxVol)
+                am.setStreamVolume(AudioManager.STREAM_MUSIC, originalMusicVolume, 0)
             } else {
                 originalMusicVolume = am.getStreamVolume(AudioManager.STREAM_MUSIC)
+                if (originalMusicVolume <= 1 && maxVol > 1) {
+                    originalMusicVolume = (maxVol * 7 / 10).coerceAtLeast(1)
+                    am.setStreamVolume(AudioManager.STREAM_MUSIC, originalMusicVolume, 0)
+                }
             }
             prefs.edit().putInt(KEY_ORIGINAL_VOLUME, originalMusicVolume).apply()
         }
         if (musicVolumePercent < 100) {
-            val reduced = Math.max(0, originalMusicVolume * musicVolumePercent / 100)
+            val reduced = (originalMusicVolume * musicVolumePercent / 100).coerceAtLeast(0)
             am.setStreamVolume(AudioManager.STREAM_MUSIC, reduced, 0)
         }
     }
@@ -142,7 +148,7 @@ class WebAppInterface(private val activity: AppCompatActivity) {
 
     @JavascriptInterface
     fun boostForBell() {
-        if (originalMusicVolume >= 0 && musicVolumePercent < 100) {
+        if (originalMusicVolume > 0) {
             val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             am.setStreamVolume(AudioManager.STREAM_MUSIC, originalMusicVolume, 0)
         }
@@ -150,9 +156,9 @@ class WebAppInterface(private val activity: AppCompatActivity) {
 
     @JavascriptInterface
     fun reduceMusicAfterBell() {
-        if (originalMusicVolume >= 0 && musicVolumePercent < 100) {
+        if (originalMusicVolume > 0 && musicVolumePercent < 100) {
             val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            val reduced = Math.max(0, originalMusicVolume * musicVolumePercent / 100)
+            val reduced = (originalMusicVolume * musicVolumePercent / 100).coerceAtLeast(0)
             am.setStreamVolume(AudioManager.STREAM_MUSIC, reduced, 0)
         }
     }
