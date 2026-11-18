@@ -174,9 +174,9 @@
         var sec = Math.round(ms / 1000);
         var m = Math.floor(sec / 60);
         var s = sec % 60;
-        if (m > 0 && s > 0) return m + '분 ' + s + '초';
-        if (m > 0) return m + '분';
-        return s + '초';
+        if (m > 0 && s > 0) return m + 'm ' + s + 's';
+        if (m > 0) return m + 'm';
+        return s + 's';
     }
 
     // ── Timer ──
@@ -208,7 +208,7 @@
         var m = Math.floor(sec / 60);
         var s = sec % 60;
         if (m > 0) {
-            els.cdMinLine.textContent = m + '분';
+            els.cdMinLine.textContent = m + 'm';
             els.cdSecLine.textContent = String(s).padStart(2, '0');
             els.countdown.classList.add('two-line');
         } else {
@@ -378,6 +378,16 @@
         if (el) el.checked = true;
     }
 
+    function getSelectedBellDuration() {
+        var checked = document.querySelector('input[name="bell-dur"]:checked');
+        return checked ? parseInt(checked.value) : 1;
+    }
+
+    function setSelectedBellDuration(v) {
+        var el = document.querySelector('input[name="bell-dur"][value="' + v + '"]');
+        if (el) el.checked = true;
+    }
+
     els.btnAppSettings.addEventListener('click', function () {
         els.asEnabled.checked = appSettings.scheduleEnabled;
         els.asStart.value = appSettings.scheduleStart;
@@ -386,6 +396,7 @@
         els.asVolume.value = appSettings.volume;
         els.asVibrate.checked = appSettings.vibrateOn;
         setSelectedBellType(appSettings.bellType);
+        setSelectedBellDuration(appSettings.bellDuration);
         showScreen('settings');
     });
 
@@ -398,24 +409,37 @@
             soundOn: els.asSound.checked,
             volume: vol,
             vibrateOn: els.asVibrate.checked,
-            bellType: getSelectedBellType()
+            bellType: getSelectedBellType(),
+            bellDuration: getSelectedBellDuration()
         };
         Settings.saveAppSettings(appSettings);
         Sound.setVolume(vol);
+        Sound.setBellDuration(appSettings.bellDuration);
         showScreen('dashboard');
     });
 
     els.btnTestSound.addEventListener('click', function () {
         Sound.unlock();
-        Sound.setVolume(parseInt(els.asVolume.value) || 80);
+        Sound.setVolume(parseInt(els.asVolume.value) || 100);
+        Sound.setBellDuration(getSelectedBellDuration());
         Sound.playBell(getSelectedBellType());
     });
 
     document.querySelectorAll('input[name="bell-type"]').forEach(function (radio) {
         radio.addEventListener('change', function () {
             Sound.unlock();
-            Sound.setVolume(parseInt(els.asVolume.value) || 80);
+            Sound.setVolume(parseInt(els.asVolume.value) || 100);
+            Sound.setBellDuration(getSelectedBellDuration());
             Sound.playBell(parseInt(this.value));
+        });
+    });
+
+    document.querySelectorAll('input[name="bell-dur"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            Sound.unlock();
+            Sound.setVolume(parseInt(els.asVolume.value) || 100);
+            Sound.setBellDuration(parseInt(this.value));
+            Sound.playBell(getSelectedBellType());
         });
     });
 
@@ -436,6 +460,7 @@
 
     // ── Init ──
     Sound.setVolume(appSettings.volume);
+    Sound.setBellDuration(appSettings.bellDuration);
     renderPresets();
     updateClock();
     setInterval(updateClock, 1000);

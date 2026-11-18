@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
     <div id="app">
@@ -39,14 +39,14 @@
         <div id="screen-timer" class="screen">
             <div id="timer-top">
                 <button id="btn-back" class="btn-back">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
                 <span id="timer-preset-name"></span>
             </div>
             <div id="timer-bar-top"><div id="timer-bar-top-fill"></div></div>
             <div id="timer-body">
                 <div id="countdown" class="two-line">
-                    <div id="cd-min-line">5분</div>
+                    <div id="cd-min-line">5m</div>
                     <div id="cd-sec-line">00</div>
                 </div>
             </div>
@@ -139,6 +139,12 @@
                     <label class="bell-opt"><input type="radio" name="bell-type" value="6"><span>삐삐빅</span></label>
                     <label class="bell-opt"><input type="radio" name="bell-type" value="7"><span>삐빅삐빅</span></label>
                 </div>
+                <div class="form-section">벨 길이</div>
+                <div id="bell-duration-selector" class="bell-selector">
+                    <label class="bell-opt"><input type="radio" name="bell-dur" value="1" checked><span>1초</span></label>
+                    <label class="bell-opt"><input type="radio" name="bell-dur" value="2"><span>2초</span></label>
+                    <label class="bell-opt"><input type="radio" name="bell-dur" value="3"><span>3초</span></label>
+                </div>
                 <div class="form-row">
                     <span>벨소리 테스트</span>
                     <button id="btn-test-sound" class="btn-small">재생</button>
@@ -151,7 +157,7 @@
                 </div>
                 <div class="form-row">
                     <span>벨 음량</span>
-                    <input type="range" id="as-volume" min="0" max="100" value="80" class="range-slider">
+                    <input type="range" id="as-volume" min="0" max="150" value="100" class="range-slider">
                 </div>
                 <div class="form-row">
                     <span>진동</span>

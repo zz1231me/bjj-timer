@@ -201,7 +201,8 @@ html, body {
 .btn-back {
     background: none; border: none;
     color: var(--t2); cursor: pointer;
-    padding: 4px; display: flex; align-items: center;
+    padding: 12px; display: flex; align-items: center;
+    min-width: 48px; min-height: 48px;
 }
 
 #timer-body {

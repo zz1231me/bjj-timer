@@ -15,7 +15,8 @@ var Settings = (function () {
         soundOn: true,
         volume: 80,
         vibrateOn: true,
-        bellType: 1
+        bellType: 1,
+        bellDuration: 1
     };
 
     function loadPresets() {
@@ -46,6 +47,7 @@ var Settings = (function () {
                     merged[k] = saved.hasOwnProperty(k) ? saved[k] : defaultAppSettings[k];
                 }
                 if (merged.bellType < 1 || merged.bellType > 7) merged.bellType = 1;
+                if (merged.bellDuration < 1 || merged.bellDuration > 3) merged.bellDuration = 1;
                 return merged;
             }
         } catch (e) {}
@@ -73,10 +75,10 @@ var Settings = (function () {
     }
 
     function formatPresetDetail(p) {
-        var round = p.roundMin + '분';
-        if (p.roundSec > 0) round += p.roundSec + '초';
-        var rest = p.restMin + '분';
-        if (p.restSec > 0) rest += p.restSec + '초';
+        var round = p.roundMin + 'm';
+        if (p.roundSec > 0) round += p.roundSec + 's';
+        var rest = p.restMin + 'm';
+        if (p.restSec > 0) rest += p.restSec + 's';
         return '스파링 ' + round + '  ·  대기 ' + rest;
     }
 

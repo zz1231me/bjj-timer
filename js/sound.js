@@ -1,6 +1,7 @@
 var Sound = (function () {
     var ctx;
-    var volumeLevel = 0.8;
+    var volumeLevel = 1.0;
+    var bellDuration = 1;
 
     function getCtx() {
         if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -20,10 +21,13 @@ var Sound = (function () {
     }
 
     function setVolume(v) {
-        volumeLevel = Math.max(0, Math.min(1, v / 100));
+        volumeLevel = Math.max(0, Math.min(1.5, v / 100));
     }
 
-    // ── 기본 톤 생성기 ──
+    function setBellDuration(sec) {
+        bellDuration = Math.max(1, Math.min(3, sec));
+    }
+
     function makeTone(freq, type, duration, vol, startTime) {
         var c = getCtx();
         var t = startTime || c.currentTime;
@@ -41,133 +45,82 @@ var Sound = (function () {
         osc.stop(t + duration + 0.01);
     }
 
-    // ═══════════════════════════════════
-    // Type 1: 삐! (고음 비프)
-    // 1000Hz square - 날카롭고 명확한 전자음
-    // 시작: 짧은 삐!  종료: 길게 삐────!
-    // ═══════════════════════════════════
-    function type1Start() {
-        var vol = volumeLevel * 0.7;
-        makeTone(1000, 'square', 0.8, vol);
+    // Type 1: 삐! (1000Hz square)
+    function type1Start(dur) {
+        makeTone(1000, 'square', dur, volumeLevel);
     }
-    function type1End() {
-        var vol = volumeLevel * 0.7;
-        makeTone(1000, 'square', 2.0, vol);
+    function type1End(dur) {
+        makeTone(1000, 'square', dur, volumeLevel);
     }
 
-    // ═══════════════════════════════════
-    // Type 2: 뿌── (저음 부저)
-    // 440Hz sawtooth - 거칠고 굵은 부저음
-    // 시작: 짧은 뿌!  종료: 길게 뿌────!
-    // ═══════════════════════════════════
-    function type2Start() {
-        var vol = volumeLevel * 0.6;
-        makeTone(440, 'sawtooth', 0.8, vol);
+    // Type 2: 뿌── (440Hz sawtooth)
+    function type2Start(dur) {
+        makeTone(440, 'sawtooth', dur, volumeLevel);
     }
-    function type2End() {
-        var vol = volumeLevel * 0.6;
-        makeTone(440, 'sawtooth', 2.0, vol);
+    function type2End(dur) {
+        makeTone(440, 'sawtooth', dur, volumeLevel);
     }
 
-    // ═══════════════════════════════════
-    // Type 3: 삑삑! (더블 비프)
-    // 1200Hz square - 빠른 반복 비프
-    // 시작: 삑!  종료: 삑삑삑!
-    // ═══════════════════════════════════
-    function type3Start() {
-        var vol = volumeLevel * 0.65;
-        makeTone(1200, 'square', 0.25, vol);
+    // Type 3: 삑삑! (1200Hz repeated)
+    function type3Start(dur) {
+        makeTone(1200, 'square', Math.min(dur, 0.25), volumeLevel);
     }
-    function type3End() {
+    function type3End(dur) {
         var c = getCtx();
         var now = c.currentTime;
-        var vol = volumeLevel * 0.65;
-        makeTone(1200, 'square', 0.25, vol, now);
-        makeTone(1200, 'square', 0.25, vol, now + 0.35);
-        makeTone(1200, 'square', 0.25, vol, now + 0.70);
+        var count = Math.max(1, Math.round(dur / 0.35));
+        for (var i = 0; i < count; i++) {
+            makeTone(1200, 'square', 0.25, volumeLevel, now + i * 0.35);
+        }
     }
 
-    // ═══════════════════════════════════
-    // Type 4: 띵! (벨)
-    // 1047Hz + 2094Hz sine - 깨끗한 금속 벨음
-    // 시작: 짧은 띵!  종료: 길게 띵~~~~~
-    // ═══════════════════════════════════
-    function type4Start() {
+    // Type 4: 띵! (1047Hz + 2094Hz sine bell)
+    function type4Start(dur) {
         var c = getCtx();
         var t = c.currentTime;
-        var vol = volumeLevel * 0.8;
+        var vol = volumeLevel;
         var osc1 = c.createOscillator();
-        osc1.type = 'sine';
-        osc1.frequency.value = 1047;
+        osc1.type = 'sine'; osc1.frequency.value = 1047;
         var osc2 = c.createOscillator();
-        osc2.type = 'sine';
-        osc2.frequency.value = 2094;
+        osc2.type = 'sine'; osc2.frequency.value = 2094;
         var g1 = c.createGain();
         g1.gain.setValueAtTime(vol, t);
-        g1.gain.exponentialRampToValueAtTime(vol * 0.3, t + 0.3);
-        g1.gain.exponentialRampToValueAtTime(0.001, t + 1.0);
+        g1.gain.exponentialRampToValueAtTime(vol * 0.3, t + dur * 0.3);
+        g1.gain.exponentialRampToValueAtTime(0.001, t + dur);
         var g2 = c.createGain();
         g2.gain.setValueAtTime(vol * 0.5, t);
-        g2.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+        g2.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.6);
         osc1.connect(g1); g1.connect(c.destination);
         osc2.connect(g2); g2.connect(c.destination);
-        osc1.start(t); osc1.stop(t + 1.1);
-        osc2.start(t); osc2.stop(t + 0.7);
+        osc1.start(t); osc1.stop(t + dur + 0.1);
+        osc2.start(t); osc2.stop(t + dur * 0.7);
     }
-    function type4End() {
-        var c = getCtx();
-        var t = c.currentTime;
-        var vol = volumeLevel * 0.8;
-        var osc1 = c.createOscillator();
-        osc1.type = 'sine';
-        osc1.frequency.value = 1047;
-        var osc2 = c.createOscillator();
-        osc2.type = 'sine';
-        osc2.frequency.value = 2094;
-        var g1 = c.createGain();
-        g1.gain.setValueAtTime(vol, t);
-        g1.gain.exponentialRampToValueAtTime(vol * 0.3, t + 0.6);
-        g1.gain.exponentialRampToValueAtTime(0.001, t + 2.0);
-        var g2 = c.createGain();
-        g2.gain.setValueAtTime(vol * 0.5, t);
-        g2.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
-        osc1.connect(g1); g1.connect(c.destination);
-        osc2.connect(g2); g2.connect(c.destination);
-        osc1.start(t); osc1.stop(t + 2.1);
-        osc2.start(t); osc2.stop(t + 1.3);
+    function type4End(dur) {
+        type4Start(dur);
     }
 
-    // ═══════════════════════════════════
-    // Type 5: 삐── (긴 단일 비프)
-    // 1000Hz square 길게 - 삐이이이이!
-    // 시작: 삐──!  종료: 삐────────!
-    // ═══════════════════════════════════
-    function type5Start() {
-        var vol = volumeLevel * 0.8;
-        makeTone(1000, 'square', 1.2, vol);
+    // Type 5: 삐── (1000Hz square long)
+    function type5Start(dur) {
+        makeTone(1000, 'square', dur, volumeLevel);
     }
-    function type5End() {
-        var vol = volumeLevel * 0.8;
-        makeTone(1000, 'square', 3.0, vol);
+    function type5End(dur) {
+        makeTone(1000, 'square', dur, volumeLevel);
     }
 
-    // ═══════════════════════════════════
-    // Type 6: 삐삐빅 (짧은 2연타 + 강조)
-    // 1200Hz square 빠른 패턴 - 삐삐빅!
-    // 시작: 삐빅!  종료: 삐삐빅! 삐삐빅!
-    // ═══════════════════════════════════
-    function type6Start() {
+    // Type 6: 삐삐빅 (pattern)
+    function type6Start(dur) {
         var c = getCtx();
         var t = c.currentTime;
-        var vol = volumeLevel * 0.8;
+        var vol = volumeLevel;
         makeTone(1200, 'square', 0.12, vol, t);
-        makeTone(1400, 'square', 0.3, vol, t + 0.2);
+        makeTone(1400, 'square', Math.max(0.3, dur - 0.2), vol, t + 0.2);
     }
-    function type6End() {
+    function type6End(dur) {
         var c = getCtx();
         var t = c.currentTime;
-        var vol = volumeLevel * 0.8;
-        for (var r = 0; r < 2; r++) {
+        var vol = volumeLevel;
+        var reps = Math.max(1, Math.round(dur / 0.8));
+        for (var r = 0; r < reps; r++) {
             var base = t + r * 0.8;
             makeTone(1200, 'square', 0.1, vol, base);
             makeTone(1200, 'square', 0.1, vol, base + 0.15);
@@ -175,27 +128,18 @@ var Sound = (function () {
         }
     }
 
-    // ═══════════════════════════════════
-    // Type 7: 삐빅삐빅 (교대 반복 비프)
-    // 1000-1300Hz square 교대 - 삐빅삐빅!
-    // 시작: 삐빅삐빅!  종료: 삐빅삐빅삐빅!
-    // ═══════════════════════════════════
-    function type7Start() {
+    // Type 7: 삐빅삐빅 (alternating)
+    function type7Start(dur) {
         var c = getCtx();
         var t = c.currentTime;
-        var vol = volumeLevel * 0.8;
-        makeTone(1000, 'square', 0.15, vol, t);
-        makeTone(1300, 'square', 0.15, vol, t + 0.2);
-        makeTone(1000, 'square', 0.15, vol, t + 0.4);
-        makeTone(1300, 'square', 0.15, vol, t + 0.6);
-    }
-    function type7End() {
-        var c = getCtx();
-        var t = c.currentTime;
-        var vol = volumeLevel * 0.8;
-        for (var i = 0; i < 6; i++) {
+        var vol = volumeLevel;
+        var count = Math.max(2, Math.round(dur / 0.2));
+        for (var i = 0; i < count; i++) {
             makeTone(i % 2 === 0 ? 1000 : 1300, 'square', 0.15, vol, t + i * 0.2);
         }
+    }
+    function type7End(dur) {
+        type7Start(dur);
     }
 
     var startFns = [null, type1Start, type2Start, type3Start, type4Start, type5Start, type6Start, type7Start];
@@ -213,17 +157,17 @@ var Sound = (function () {
 
     function playBell(type) {
         var fn = startFns[type || 1];
-        if (fn) withAudioFocus(fn, 1000);
+        if (fn) withAudioFocus(function () { fn(bellDuration); }, bellDuration * 1000);
     }
 
     function playRoundStart(type) {
         var fn = startFns[type || 1];
-        if (fn) withAudioFocus(fn, 1000);
+        if (fn) withAudioFocus(function () { fn(bellDuration); }, bellDuration * 1000);
     }
 
     function playRoundEnd(type) {
         var fn = endFns[type || 1];
-        if (fn) withAudioFocus(fn, 2500);
+        if (fn) withAudioFocus(function () { fn(bellDuration); }, bellDuration * 1000);
     }
 
     function playCountTick() {
@@ -242,8 +186,6 @@ var Sound = (function () {
         osc.stop(now + 0.07);
     }
 
-    // ── 블루투스 오디오 keep-alive ──
-    // BT 스피커가 무음 시 연결 끊기 방지 → 첫 소리 잘림 방지
     var keepAliveId = null;
 
     function startKeepAlive() {
@@ -272,6 +214,7 @@ var Sound = (function () {
     return {
         unlock: unlock,
         setVolume: setVolume,
+        setBellDuration: setBellDuration,
         playBell: playBell,
         playRoundStart: playRoundStart,
         playRoundEnd: playRoundEnd,
