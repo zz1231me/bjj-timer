@@ -248,12 +248,12 @@ html, body {
 
 #countdown.two-line #cd-min-line {
     display: block;
-    font-size: min(62vw, 360px);
+    font-size: min(66vw, 390px);
     margin-bottom: min(1vw, 6px);
 }
 
 #countdown.two-line #cd-sec-line {
-    font-size: min(62vw, 360px);
+    font-size: min(66vw, 390px);
 }
 
 /* ── Timer Bars (top + bottom) ── */
