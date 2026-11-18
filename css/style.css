@@ -427,11 +427,11 @@ html, body {
 
 .time-picker { display: flex; gap: 12px; }
 .time-unit { display: flex; align-items: center; gap: 6px; }
-.time-stepper { display: flex; align-items: center; justify-content: center; gap: 12px; }
-.ts-btn { width: 72px; height: 48px; font-size: 1rem; font-weight: 800; }
+.time-stepper { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.ts-btn { width: 88px; height: 56px; font-size: 1.1rem; font-weight: 800; }
 .ts-display {
-    min-width: 90px; text-align: center;
-    font-size: 1.8rem; font-weight: 800; color: var(--white);
+    min-width: 100px; text-align: center;
+    font-size: 2rem; font-weight: 800; color: var(--white);
     letter-spacing: 2px;
 }
 .time-num {

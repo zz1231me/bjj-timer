@@ -95,11 +95,10 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">종료 카운트다운</label>
-                    <div class="stepper">
-                        <button class="stepper-btn" data-target="pe-warning" data-delta="-5">&minus;</button>
-                        <input type="number" id="pe-warning" min="0" max="30" value="10" class="stepper-val">
-                        <button class="stepper-btn" data-target="pe-warning" data-delta="5">+</button>
-                        <span class="stepper-suffix">초 전</span>
+                    <div class="time-stepper">
+                        <button class="stepper-btn ts-btn" data-ts="warning" data-delta="-10">&minus;10</button>
+                        <span id="pe-warning-display" class="ts-display">10초</span>
+                        <button class="stepper-btn ts-btn" data-ts="warning" data-delta="10">+10</button>
                     </div>
                 </div>
                 <button id="btn-delete-preset" class="btn-danger hidden">이 프리셋 삭제</button>

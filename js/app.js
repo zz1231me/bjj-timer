@@ -39,7 +39,7 @@
         peName: $('pe-name'),
         peRoundDisplay: $('pe-round-display'),
         peRestDisplay: $('pe-rest-display'),
-        peWarning: $('pe-warning'),
+        peWarningDisplay: $('pe-warning-display'),
         btnDeletePreset: $('btn-delete-preset'),
         btnSavePreset: $('btn-save-preset'),
         asEnabled: $('as-enabled'),
@@ -283,6 +283,7 @@
     // ── Preset Edit ──
     var editRoundSec = 300;
     var editRestSec = 60;
+    var editWarningSec = 10;
 
     function formatTimeStepper(totalSec) {
         var m = Math.floor(totalSec / 60);
@@ -293,6 +294,7 @@
     function updateTimeDisplays() {
         els.peRoundDisplay.textContent = formatTimeStepper(editRoundSec);
         els.peRestDisplay.textContent = formatTimeStepper(editRestSec);
+        els.peWarningDisplay.textContent = editWarningSec + '초';
     }
 
     function openPresetEdit(preset) {
@@ -302,7 +304,7 @@
             els.peName.value = preset.name;
             editRoundSec = preset.roundMin * 60 + preset.roundSec;
             editRestSec = preset.restMin * 60 + preset.restSec;
-            els.peWarning.value = preset.warningSec;
+            editWarningSec = preset.warningSec;
             els.btnDeletePreset.classList.remove('hidden');
         } else {
             editingPresetId = null;
@@ -310,7 +312,7 @@
             els.peName.value = '';
             editRoundSec = 300;
             editRestSec = 60;
-            els.peWarning.value = 10;
+            editWarningSec = 10;
             els.btnDeletePreset.classList.add('hidden');
         }
         updateTimeDisplays();
@@ -323,8 +325,10 @@
             var delta = parseInt(btn.dataset.delta);
             if (target === 'round') {
                 editRoundSec = Math.max(10, Math.min(5940, editRoundSec + delta));
-            } else {
+            } else if (target === 'rest') {
                 editRestSec = Math.max(0, Math.min(5940, editRestSec + delta));
+            } else if (target === 'warning') {
+                editWarningSec = Math.max(0, Math.min(60, editWarningSec + delta));
             }
             updateTimeDisplays();
         });
@@ -341,7 +345,7 @@
             roundSec: editRoundSec % 60,
             restMin: Math.floor(editRestSec / 60),
             restSec: editRestSec % 60,
-            warningSec: clamp(parseInt(els.peWarning.value) || 0, 0, 60)
+            warningSec: editWarningSec
         };
         if (editingPresetId) {
             var idx = presets.findIndex(function (x) { return x.id === editingPresetId; });
