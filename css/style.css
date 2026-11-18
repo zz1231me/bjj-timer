@@ -323,6 +323,10 @@ html, body {
 }
 .state-running #timer-bar-fill,
 .state-running #timer-bar-top-fill { background: #e53935; }
+.state-running .btn-ctrl-primary {
+    background: var(--t5); color: var(--t1);
+    border: 1px solid var(--t4);
+}
 
 /* running bigsec (<=60s): slow red pulse, bigger */
 .state-bigsec #screen-timer {
@@ -332,6 +336,10 @@ html, body {
 .state-bigsec #countdown.single-digit #cd-sec-line { font-size: min(105vw, 620px); }
 .state-bigsec #timer-bar-fill,
 .state-bigsec #timer-bar-top-fill { background: #e53935; }
+.state-bigsec .btn-ctrl-primary {
+    background: var(--t5); color: var(--t1);
+    border: 1px solid var(--t4);
+}
 
 @keyframes pulse-active {
     0%, 100% { background: #120404; }
@@ -342,7 +350,10 @@ html, body {
 .state-resting #screen-timer { background: var(--blue-bg); }
 .state-resting #timer-bar-fill,
 .state-resting #timer-bar-top-fill { background: var(--blue); }
-.state-resting .btn-ctrl-primary { background: var(--blue); }
+.state-resting .btn-ctrl-primary {
+    background: var(--t5); color: var(--t1);
+    border: 1px solid var(--t4);
+}
 .state-resting #timer-bar,
 .state-resting #timer-bar-top { background: var(--t4); }
 
@@ -352,7 +363,10 @@ html, body {
 .state-resting-bigsec #countdown.single-digit #cd-sec-line { font-size: min(105vw, 620px); }
 .state-resting-bigsec #timer-bar-fill,
 .state-resting-bigsec #timer-bar-top-fill { background: var(--blue); }
-.state-resting-bigsec .btn-ctrl-primary { background: var(--blue); }
+.state-resting-bigsec .btn-ctrl-primary {
+    background: var(--t5); color: var(--t1);
+    border: 1px solid var(--t4);
+}
 .state-resting-bigsec #timer-bar,
 .state-resting-bigsec #timer-bar-top { background: var(--t4); }
 
@@ -364,7 +378,10 @@ html, body {
 .state-warning #countdown.single-digit #cd-sec-line { font-size: min(105vw, 620px); }
 .state-warning #timer-bar-fill,
 .state-warning #timer-bar-top-fill { background: #e53935; }
-.state-warning .btn-ctrl-primary { background: #e53935; }
+.state-warning .btn-ctrl-primary {
+    background: var(--t5); color: var(--t1);
+    border: 1px solid var(--t4);
+}
 
 @keyframes pulse-warn {
     0%, 100% { background: var(--red-bg); }
