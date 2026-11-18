@@ -243,6 +243,7 @@
         // 버튼
         var btnLabels = { idle: '시작', paused: '계속' };
         els.btnStart.textContent = btnLabels[status.state] || '정지';
+        els.btnReset.textContent = status.state === 'idle' ? '홈' : '리셋';
     }
 
     Timer.on('update', updateTimerDisplay);
@@ -266,17 +267,16 @@
     });
 
     els.btnReset.addEventListener('click', function () {
-        Timer.reset();
-        lastTickSec = -1;
-    });
-
-    els.btnBack.addEventListener('click', function () {
-        Timer.reset();
-        lastTickSec = -1;
-        Sound.stopKeepAlive();
-        app.className = '';
-        showScreen('dashboard');
-        updateKeepScreenOn();
+        var s = Timer.getState();
+        if (s === Timer.State.IDLE) {
+            Sound.stopKeepAlive();
+            app.className = '';
+            showScreen('dashboard');
+            updateKeepScreenOn();
+        } else {
+            Timer.reset();
+            lastTickSec = -1;
+        }
     });
 
     // ── Preset Edit ──
