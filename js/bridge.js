@@ -98,6 +98,12 @@ var Bridge = (function () {
         }
     }
 
+    function setMusicVolume(percent) {
+        if (isAndroidWebView()) {
+            try { window.AndroidBridge.setMusicVolumePercent(percent); } catch (e) {}
+        }
+    }
+
     function getDeviceVolume() {
         if (isAndroidWebView()) {
             try {
@@ -113,6 +119,7 @@ var Bridge = (function () {
         isAndroidWebView: isAndroidWebView,
         keepScreenOn: keepScreenOn,
         screenOff: screenOff,
+        setMusicVolume: setMusicVolume,
         setFullscreen: setFullscreen,
         vibrate: vibrate,
         requestAudioFocus: requestAudioFocus,

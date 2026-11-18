@@ -30,6 +30,7 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
+    private lateinit var webAppInterface: WebAppInterface
     private val timerUrl = "https://zz1231me.github.io/bjj-timer/"
     private val prefsName = "bjj_timer_prefs"
     private val keyLastRefresh = "last_refresh_date"
@@ -92,7 +93,8 @@ class MainActivity : AppCompatActivity() {
 
                 webChromeClient = WebChromeClient()
 
-                addJavascriptInterface(WebAppInterface(this@MainActivity), "AndroidBridge")
+                webAppInterface = WebAppInterface(this@MainActivity)
+                addJavascriptInterface(webAppInterface, "AndroidBridge")
             }
         } catch (e: Exception) {
             Toast.makeText(this, "WebView 초기화 실패", Toast.LENGTH_LONG).show()
@@ -154,6 +156,10 @@ class MainActivity : AppCompatActivity() {
             window.attributes = params
         }
 
+        if (::webAppInterface.isInitialized) {
+            webAppInterface.applyMusicVolume()
+        }
+
         if (shouldRefreshToday() && isNetworkAvailable()) {
             webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
             webView.reload()
@@ -161,6 +167,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
+        if (::webAppInterface.isInitialized) {
+            webAppInterface.restoreMusicVolume()
+        }
         webView.onPause()
         super.onPause()
     }

@@ -49,6 +49,7 @@
         asEnd: $('as-end'),
         asSound: $('as-sound'),
         asVolume: $('as-volume'),
+        asMusicVolume: $('as-music-volume'),
         asVibrate: $('as-vibrate'),
         btnTestSound: $('btn-test-sound'),
         btnSaveAppSettings: $('btn-save-app-settings')
@@ -361,6 +362,7 @@
         els.asSound.checked = appSettings.soundOn;
         var devVol = Bridge.getDeviceVolume();
         els.asVolume.value = devVol >= 0 ? devVol : appSettings.volume;
+        els.asMusicVolume.value = appSettings.musicVolume;
         els.asVibrate.checked = appSettings.vibrateOn;
         setSelectedBellType(appSettings.bellType);
         showScreen('settings');
@@ -368,18 +370,22 @@
 
     els.btnSaveAppSettings.addEventListener('click', function () {
         var vol = parseInt(els.asVolume.value) || 80;
+        var musicVol = parseInt(els.asMusicVolume.value);
+        if (isNaN(musicVol)) musicVol = 50;
         appSettings = {
             scheduleEnabled: els.asEnabled.checked,
             scheduleStart: els.asStart.value || '18:00',
             scheduleEnd: els.asEnd.value || '22:00',
             soundOn: els.asSound.checked,
             volume: vol,
+            musicVolume: musicVol,
             vibrateOn: els.asVibrate.checked,
             bellType: getSelectedBellType()
         };
         Settings.saveAppSettings(appSettings);
         Sound.setVolume(vol);
         Bridge.setDeviceVolume(vol);
+        Bridge.setMusicVolume(musicVol);
         showScreen('dashboard');
     });
 
@@ -412,6 +418,7 @@
 
     // ── Init ──
     Sound.setVolume(appSettings.volume);
+    Bridge.setMusicVolume(appSettings.musicVolume);
     renderPresets();
     updateClock();
     setInterval(updateClock, 1000);
