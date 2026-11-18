@@ -329,7 +329,7 @@ html, body {
     animation: pulse-active 3s ease-in-out infinite;
 }
 .state-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
-.state-bigsec #countdown.single-digit #cd-sec-line { font-size: min(92vw, 540px); }
+.state-bigsec #countdown.single-digit #cd-sec-line { font-size: min(105vw, 620px); }
 .state-bigsec #timer-bar-fill,
 .state-bigsec #timer-bar-top-fill { background: #e53935; }
 
@@ -349,7 +349,7 @@ html, body {
 /* resting bigsec (<=60s): blue stroke, bigger */
 .state-resting-bigsec #screen-timer { background: var(--blue-bg); }
 .state-resting-bigsec #cd-sec-line { font-size: min(78vw, 460px); }
-.state-resting-bigsec #countdown.single-digit #cd-sec-line { font-size: min(92vw, 540px); }
+.state-resting-bigsec #countdown.single-digit #cd-sec-line { font-size: min(105vw, 620px); }
 .state-resting-bigsec #timer-bar-fill,
 .state-resting-bigsec #timer-bar-top-fill { background: var(--blue); }
 .state-resting-bigsec .btn-ctrl-primary { background: var(--blue); }
@@ -361,7 +361,7 @@ html, body {
     animation: pulse-warn 1s ease-in-out infinite;
 }
 .state-warning #cd-sec-line { font-size: min(80vw, 480px); }
-.state-warning #countdown.single-digit #cd-sec-line { font-size: min(92vw, 540px); }
+.state-warning #countdown.single-digit #cd-sec-line { font-size: min(105vw, 620px); }
 .state-warning #timer-bar-fill,
 .state-warning #timer-bar-top-fill { background: #e53935; }
 .state-warning .btn-ctrl-primary { background: #e53935; }
