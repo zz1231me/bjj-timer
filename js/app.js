@@ -215,6 +215,11 @@
             els.cdSecLine.textContent = sec > 0 ? sec : '0';
             els.countdown.classList.remove('two-line');
         }
+        if (sec > 0 && sec <= 9 && m === 0) {
+            els.countdown.classList.add('single-digit');
+        } else {
+            els.countdown.classList.remove('single-digit');
+        }
 
         var pct = (status.progress * 100) + '%';
         els.timerBarFill.style.width = pct;
