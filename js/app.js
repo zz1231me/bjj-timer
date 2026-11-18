@@ -47,7 +47,6 @@
         asEnd: $('as-end'),
         asSound: $('as-sound'),
         asVolume: $('as-volume'),
-        asMusicVolume: $('as-music-volume'),
         asVibrate: $('as-vibrate'),
         btnTestSound: $('btn-test-sound'),
         btnSaveAppSettings: $('btn-save-app-settings')
@@ -324,7 +323,7 @@
             var target = btn.dataset.ts;
             var delta = parseInt(btn.dataset.delta);
             if (target === 'round') {
-                editRoundSec = Math.max(10, Math.min(5940, editRoundSec + delta));
+                editRoundSec = Math.max(30, Math.min(5940, editRoundSec + delta));
             } else if (target === 'rest') {
                 editRestSec = Math.max(0, Math.min(5940, editRestSec + delta));
             } else if (target === 'warning') {
@@ -337,7 +336,7 @@
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
     els.btnSavePreset.addEventListener('click', function () {
-        if (editRoundSec < 10) editRoundSec = 10;
+        if (editRoundSec < 30) editRoundSec = 30;
         var p = {
             id: editingPresetId || Settings.generateId(),
             name: els.peName.value.trim() || '프리셋',
@@ -385,7 +384,6 @@
         els.asEnd.value = appSettings.scheduleEnd;
         els.asSound.checked = appSettings.soundOn;
         els.asVolume.value = appSettings.volume;
-        els.asMusicVolume.value = appSettings.musicVolume;
         els.asVibrate.checked = appSettings.vibrateOn;
         setSelectedBellType(appSettings.bellType);
         showScreen('settings');
@@ -393,21 +391,17 @@
 
     els.btnSaveAppSettings.addEventListener('click', function () {
         var vol = parseInt(els.asVolume.value) || 80;
-        var musicVol = parseInt(els.asMusicVolume.value);
-        if (isNaN(musicVol)) musicVol = 50;
         appSettings = {
             scheduleEnabled: els.asEnabled.checked,
             scheduleStart: els.asStart.value || '18:00',
             scheduleEnd: els.asEnd.value || '22:00',
             soundOn: els.asSound.checked,
             volume: vol,
-            musicVolume: musicVol,
             vibrateOn: els.asVibrate.checked,
             bellType: getSelectedBellType()
         };
         Settings.saveAppSettings(appSettings);
         Sound.setVolume(vol);
-        Bridge.setMusicVolume(musicVol);
         showScreen('dashboard');
     });
 
@@ -442,7 +436,6 @@
 
     // ── Init ──
     Sound.setVolume(appSettings.volume);
-    Bridge.setMusicVolume(appSettings.musicVolume);
     renderPresets();
     updateClock();
     setInterval(updateClock, 1000);

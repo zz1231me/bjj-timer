@@ -98,24 +98,6 @@ var Bridge = (function () {
         }
     }
 
-    function setMusicVolume(percent) {
-        if (isAndroidWebView()) {
-            try { window.AndroidBridge.setMusicVolumePercent(percent); } catch (e) {}
-        }
-    }
-
-    function boostForBell() {
-        if (isAndroidWebView()) {
-            try { window.AndroidBridge.boostForBell(); } catch (e) {}
-        }
-    }
-
-    function reduceMusicAfterBell() {
-        if (isAndroidWebView()) {
-            try { window.AndroidBridge.reduceMusicAfterBell(); } catch (e) {}
-        }
-    }
-
     function getDeviceVolume() {
         if (isAndroidWebView()) {
             try {
@@ -131,9 +113,6 @@ var Bridge = (function () {
         isAndroidWebView: isAndroidWebView,
         keepScreenOn: keepScreenOn,
         screenOff: screenOff,
-        setMusicVolume: setMusicVolume,
-        boostForBell: boostForBell,
-        reduceMusicAfterBell: reduceMusicAfterBell,
         setFullscreen: setFullscreen,
         vibrate: vibrate,
         requestAudioFocus: requestAudioFocus,

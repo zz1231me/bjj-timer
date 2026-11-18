@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
 
+        recoverMusicVolume()
+
         val needsRefresh = shouldRefreshToday()
         val online = isNetworkAvailable()
 
@@ -156,10 +158,6 @@ class MainActivity : AppCompatActivity() {
             window.attributes = params
         }
 
-        if (::webAppInterface.isInitialized) {
-            webAppInterface.applyMusicVolume()
-        }
-
         if (shouldRefreshToday() && isNetworkAvailable()) {
             webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
             webView.reload()
@@ -167,9 +165,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        if (::webAppInterface.isInitialized) {
-            webAppInterface.restoreMusicVolume()
-        }
         webView.onPause()
         super.onPause()
     }
@@ -211,6 +206,24 @@ class MainActivity : AppCompatActivity() {
             .edit()
             .putString(keyLastRefresh, todayString())
             .apply()
+    }
+
+    private fun recoverMusicVolume() {
+        val prefs = getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+        val saved = prefs.getInt("original_music_volume", -1)
+        if (saved > 0) {
+            val am = getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+            val max = am.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC)
+            am.setStreamVolume(android.media.AudioManager.STREAM_MUSIC, saved.coerceAtMost(max), 0)
+            prefs.edit().remove("original_music_volume").apply()
+        } else {
+            val am = getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+            val cur = am.getStreamVolume(android.media.AudioManager.STREAM_MUSIC)
+            val max = am.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC)
+            if (cur <= 1 && max > 1) {
+                am.setStreamVolume(android.media.AudioManager.STREAM_MUSIC, (max * 7 / 10).coerceAtLeast(1), 0)
+            }
+        }
     }
 
     private fun isNetworkAvailable(): Boolean {

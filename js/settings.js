@@ -14,7 +14,6 @@ var Settings = (function () {
         scheduleEnd: '22:00',
         soundOn: true,
         volume: 80,
-        musicVolume: 50,
         vibrateOn: true,
         bellType: 1
     };

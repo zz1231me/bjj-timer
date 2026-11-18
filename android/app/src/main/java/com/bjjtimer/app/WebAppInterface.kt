@@ -14,14 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class WebAppInterface(private val activity: AppCompatActivity) {
 
-    private companion object {
-        const val PREF_NAME = "bjj_timer_prefs"
-        const val KEY_ORIGINAL_VOLUME = "original_music_volume"
-    }
-
     private var audioFocusRequest: AudioFocusRequest? = null
-    private var musicVolumePercent: Int = 100
-    private var originalMusicVolume: Int = -1
 
     @JavascriptInterface
     fun keepScreenOn(on: Boolean) {
@@ -103,63 +96,6 @@ class WebAppInterface(private val activity: AppCompatActivity) {
         } else {
             @Suppress("DEPRECATION")
             activity.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        }
-    }
-
-    @JavascriptInterface
-    fun setMusicVolumePercent(percent: Int) {
-        musicVolumePercent = percent.coerceIn(0, 100)
-        applyMusicVolume()
-    }
-
-    fun applyMusicVolume() {
-        val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val prefs = activity.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val maxVol = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        if (originalMusicVolume < 0) {
-            val saved = prefs.getInt(KEY_ORIGINAL_VOLUME, -1)
-            if (saved > 0) {
-                originalMusicVolume = saved.coerceAtMost(maxVol)
-                am.setStreamVolume(AudioManager.STREAM_MUSIC, originalMusicVolume, 0)
-            } else {
-                originalMusicVolume = am.getStreamVolume(AudioManager.STREAM_MUSIC)
-                if (originalMusicVolume <= 1 && maxVol > 1) {
-                    originalMusicVolume = (maxVol * 7 / 10).coerceAtLeast(1)
-                    am.setStreamVolume(AudioManager.STREAM_MUSIC, originalMusicVolume, 0)
-                }
-            }
-            prefs.edit().putInt(KEY_ORIGINAL_VOLUME, originalMusicVolume).apply()
-        }
-        if (musicVolumePercent < 100) {
-            val reduced = (originalMusicVolume * musicVolumePercent / 100).coerceAtLeast(0)
-            am.setStreamVolume(AudioManager.STREAM_MUSIC, reduced, 0)
-        }
-    }
-
-    fun restoreMusicVolume() {
-        if (originalMusicVolume >= 0) {
-            val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            am.setStreamVolume(AudioManager.STREAM_MUSIC, originalMusicVolume, 0)
-            originalMusicVolume = -1
-            activity.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-                .edit().remove(KEY_ORIGINAL_VOLUME).apply()
-        }
-    }
-
-    @JavascriptInterface
-    fun boostForBell() {
-        if (originalMusicVolume > 0) {
-            val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            am.setStreamVolume(AudioManager.STREAM_MUSIC, originalMusicVolume, 0)
-        }
-    }
-
-    @JavascriptInterface
-    fun reduceMusicAfterBell() {
-        if (originalMusicVolume > 0 && musicVolumePercent < 100) {
-            val am = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            val reduced = (originalMusicVolume * musicVolumePercent / 100).coerceAtLeast(0)
-            am.setStreamVolume(AudioManager.STREAM_MUSIC, reduced, 0)
         }
     }
 

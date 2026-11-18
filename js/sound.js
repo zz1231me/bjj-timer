@@ -204,12 +204,10 @@ var Sound = (function () {
 
     function withAudioFocus(fn, durationMs) {
         Bridge.requestAudioFocus();
-        Bridge.boostForBell();
         fn();
         clearTimeout(focusTimerId);
         focusTimerId = setTimeout(function () {
             Bridge.abandonAudioFocus();
-            Bridge.reduceMusicAfterBell();
         }, durationMs + 500);
     }
 
@@ -229,7 +227,6 @@ var Sound = (function () {
     }
 
     function playCountTick() {
-        Bridge.boostForBell();
         var c = getCtx();
         var now = c.currentTime;
         var vol = volumeLevel * 0.3;
@@ -243,7 +240,6 @@ var Sound = (function () {
         g.connect(c.destination);
         osc.start(now);
         osc.stop(now + 0.07);
-        setTimeout(function () { Bridge.reduceMusicAfterBell(); }, 150);
     }
 
     // ── 블루투스 오디오 keep-alive ──
