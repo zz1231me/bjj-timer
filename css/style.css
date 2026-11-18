@@ -236,6 +236,9 @@ html, body {
     font-size: min(56vw, 320px);
     display: none;
 }
+#cd-min-line .unit {
+    font-size: 0.7em;
+}
 
 #cd-sec-line {
     font-size: min(72vw, 420px);

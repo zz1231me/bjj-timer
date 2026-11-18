@@ -208,7 +208,7 @@
         var m = Math.floor(sec / 60);
         var s = sec % 60;
         if (m > 0) {
-            els.cdMinLine.textContent = m + 'm';
+            els.cdMinLine.innerHTML = m + '<span class="unit">m</span>';
             els.cdSecLine.textContent = String(s).padStart(2, '0');
             els.countdown.classList.add('two-line');
         } else {
